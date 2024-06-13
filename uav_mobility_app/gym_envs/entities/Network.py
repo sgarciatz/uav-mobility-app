@@ -5,6 +5,7 @@ from uav_mobility_app.gym_envs.entities.NetworkNode import NetworkNode
 from uav_mobility_app.gym_envs.entities.NetworkLink import NetworkLink
 from uav_mobility_app.gym_envs.entities.NetworkDevice import NetworkDevice
 from uav_mobility_app.gym_envs.enums.NetworkDeviceType import NetworkDeviceType
+from uav_mobility_app.gym_envs.entities.ExtendedNetworkLink import ExtendedNetworkLink
 import random
 
 class Network(nx.DiGraph):
@@ -83,7 +84,7 @@ class Network(nx.DiGraph):
         NetworkDeviceType.SW within the graph.
 
         """
-        return self._gateways
+        return self._switches
 
     @property
     def access_points(self) -> list[NetworkDevice]:
@@ -253,7 +254,40 @@ class Network(nx.DiGraph):
         for l in path:
             l.remove_flow(device)
 
-    def generate_uav_event(self, seed: int = None) -> None:
+    def get_next_link(self,
+                      link: ExtendedNetworkLink
+                      ) -> list[ExtendedNetworkLink]:
+        """Given a graph edge, a tuple of the src and dst NetworkNodes
+        and the NetworkLink, return the next edges that lead to the
+        gateway.
+
+        Args:
+            link (tuple[NetworkNode,
+                        NetworkNode,
+                        dict[str,NetworkDevice]]): The current
+            edge.
+
+        Returns:
+            list[tuple[NetworkNode,
+                       NetworkNode,
+                       dict[str, NetworkLink]]]: The list of possible
+            next NetworkLinks that can be selected to build the path.
+        """
+        dst_node: NetworkNode = link[1]
+        gw: NetworkNode = self._gateways[0]
+
+        possible_links: list[ExtendedNetworkLink] = list(self.out_edges(
+            dst_node,
+            data=True))
+        prunned_links: list[ExtendedNetworkLink] = []
+        max_path_legth: int = nx.shortest_path_length(self, dst_node, gw)
+        for (u, v, l) in possible_links:
+            path_length: int = nx.shortest_path_length(self, v, gw)
+            if (path_length <= max_path_legth):
+                prunned_links.append((u, v, l))
+        return prunned_links
+
+    def generate_uav_event(self, seed: int = None) -> NetworkDevice:
         """Generates a pseudorandom UAV related event. These kind of
         events consist on an UAV moving from one AP to another. This
         disconnection and connection process is considered to happen
@@ -262,12 +296,17 @@ class Network(nx.DiGraph):
         Args:
             seed (int, optional): The seed to guarantee reproducibility.
             Defaults to None.
+
+        Returns:
+            NetworkDevice: The chosen NetworkDevice.
         """
+
         if (seed != None):
             random.seed(seed)
         # Choose the UAV to move
         random_uav_index: int = random.randint(0, len(self._uavs) - 1)
         random_uav: NetworkDevice = self._uavs[random_uav_index]
+        random_uav.is_active = True
         # Remove its current NetworkLinks
         in_link = list(self.in_edges(random_uav, data = True))[0]
         current_ap: NetworkDevice = in_link[0]
@@ -293,7 +332,7 @@ class Network(nx.DiGraph):
                               {"data": out_network_link})])
         return random_uav
 
-    def generate_cam_event(self, seed: int = None) -> None:
+    def generate_cam_event(self, seed: int = None) -> NetworkDevice | None:
         """Generates a pseudorandom camera related event. These kind of
         events consist on a camera starting a video streaming, thus the
         need to allocate resources for the workflow arises.
@@ -301,10 +340,16 @@ class Network(nx.DiGraph):
         Args:
             seed (int, optional): The seed to guarantee reproducibility.
             Defaults to None.
+        Returns:
+            NetworkDevice | None: _description_
         """
-        # Choose a random Camera to start streaming
-        random_cam_index = random.randint(0, len(self._cams)-1)
-        random_cam: NetworkDevice = self._cams[random_cam_index]
+        # Choose a random inactive Camera to start streaming
+        inactive_cams: list[NetworkDevice] = list(filter(
+            lambda cam: cam.is_active == False,
+            self._cams))
+        random_cam_index: int = random.randint(0, len(inactive_cams)-1)
+        random_cam: NetworkDevice = inactive_cams[random_cam_index]
+        random_cam.is_active = True
         return random_cam
 
     def show_shortest_path_to_gw(self,
@@ -357,6 +402,36 @@ class Network(nx.DiGraph):
         plt.show()
         #self.add_edges_from(edges)
 
+    def show_network_info(self):
+        """Show the information of the network graph. For each node show
+        its name and for each link, the delay that it introduces.
+        """
+        positions = {}
+        labels = {}
+        for n in self.nodes:
+            positions[n] = [n.position[1], n.position[0]]
+            labels[n] = n.name
+        nx.draw_networkx_nodes(self,
+                               pos=positions)
+        nx.draw_networkx_labels(self,
+                                pos=positions,
+                                labels=labels)
+        edge_labels = {}
+        edge_width = []
+        for (u,v,l) in self.edges(data=True):
+            data: NetworkLink = l["data"]
+            edge_labels[(u,v)] = round(data.delay, 2)
+            edge_width.append(1 + len(data.routed_flows) * 1.2)
+        nx.draw_networkx_edges(
+            self,
+            pos=positions,
+            width=edge_width,
+            arrowsize=edge_width,
+        )
+        nx.draw_networkx_edge_labels(
+            self,
+            pos=positions,
+            edge_labels=edge_labels)
 
 
 
@@ -366,6 +441,7 @@ if __name__ == "__main__":
     my_net = Network(Path("/home/santiago/Documents/Trabajo/Workspace/uav-mobility-app/input/network_00.json"))
     nodes = [ n.id for n in my_net.nodes]
     positions = { n: [n._position[1], n._position[0]] for n in my_net.nodes}
+    my_net.show_network_info()
     # nx.draw_networkx(my_net, pos=positions, with_labels=False)
     # plt.show()
     gw = my_net.gateways[0]
@@ -394,18 +470,16 @@ if __name__ == "__main__":
     for _ in range(100):
         rng_cam = my_net.generate_cam_event()
         rng_cam_path = my_net.get_path_device(rng_cam)
-        [print(l) for (u,v,l) in my_net.edges(data=True)]
-        print("\n")
         my_net.free_path_device(rng_cam, rng_cam_path)
-        [print(l) for (u,v,l) in my_net.edges(data=True)]
-        print("\n")
         shortest_path_rng_cam = my_net.shortest_path_to_gw(rng_cam, gw)
-        # [print(f"{u}\n{v}\n{l}") for (u,v,l) in my_net.edges(data=True)]
-        [print(l) for (u,v,l) in my_net.edges(data=True)]
-        print("\n\n\n\n")
         my_net.assign_path_to_device(rng_cam, shortest_path_rng_cam)
 
-    plt.title(f"Shortest path from {rng_cam.name} to {gw.name}")
-    [print(l) for l in my_net.network_links]
-    my_net.show_shortest_path_to_gw(shortest_path_rng_cam)
 
+    ap_00= None
+
+    for (u, v, l) in my_net.out_edges(data=True):
+        link: NetworkLink = l["data"]
+        if (v.name == "ap_00"):
+            ap_00 = (u, v, l)
+            break
+    print(my_net.get_next_link(ap_00))

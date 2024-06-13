@@ -5,6 +5,7 @@ import numpy as np
 from gymnasium import spaces
 from gymnasium.spaces.utils import flatten_space
 from uav_mobility_app.gym_envs.entities.Network import Network
+from uav_mobility_app.gym_envs.entities.Network import ExtendedNetworkLink
 from uav_mobility_app.gym_envs.entities.NetworkDevice import NetworkDevice
 from uav_mobility_app.gym_envs.entities.NetworkNode import NetworkNode
 from uav_mobility_app.gym_envs.entities.NetworkLink import NetworkLink
@@ -24,24 +25,17 @@ class NetworkEnv(gym.Env):
         """
         self._network: Network = network
         self._actions = 3
-        self.action_space = spaces.Discrete(self.actions,
+        self.action_space = spaces.Discrete(self._actions,
                                             start=0)
-        self._obs_space_0 = spaces.Box(low=np.array([0.0, 0.0, 0.0]),
-                                      high=np.array([1.0, 20.0, 1000.0]),
+
+        self._obs_space = spaces.Box(low=np.array([0.0, 0.0, 0.0]),
+                                      high=np.array([1.0+1.0,
+                                                     20.0+1.0,
+                                                     1000.0+1.0]),
                                       shape=(3,))
-        self._obs_space_1 = spaces.Box(low=np.array([0.0, 0.0, 0.0]),
-                                      high=np.array([1.0, 20.0, 1000.0]),
-                                      shape=(3,))
-        self._obs_space_2 = spaces.Box(low=np.array([0.0, 0.0, 0.0]),
-                                      high=np.array([1.0, 20.0, 1000.0]),
-                                      shape=(3,))
-        self.observation_space = flatten_space((self._obs_space_0,
-                                                self._obs_space_1,
-                                                self._obs_space_2))
+        self.observation_space = spaces.Tuple((self._obs_space for _ in range(self._actions)))
+        self.observation_space = flatten_space(self.observation_space)
         self._dev: NetworkDevice = None
-        self._link: tuple[NetworkNode,
-                          NetworkNode,
-                          dict[str, NetworkDevice]] = None
         self._path: list[tuple[NetworkNode,
                                NetworkNode,
                                dict[str, NetworkDevice]]] = []
@@ -63,7 +57,7 @@ class NetworkEnv(gym.Env):
         """
         if (seed != None):
             random.seed(seed)
-        if (options["hard_reset"] == True):
+        if (options != None):
             for d in self._network.network_devices:
                 dev_path = self._network.get_path_device(d)
                 self._network.free_path_device(d, dev_path)
@@ -73,6 +67,10 @@ class NetworkEnv(gym.Env):
             self._dev = self._network.generate_cam_event()
         else:
             self._dev = self._network.generate_uav_event()
+
+        self._path = []
+        link= list(self._network.out_edges(self._dev, data=True))[0]
+        self._path.append(link)
         obs = self._get_obs()
         info = self._get_info()
         return obs, info
@@ -89,18 +87,22 @@ class NetworkEnv(gym.Env):
         """
 
         # Based on the action, select the corresponding path
-        next_link = self._network.get_next_link(self._dev, self._link, action)
-        dst_node: NetworkNode = next_link(1)
-        link: NetworkLink = next_link(2)["data"]
-        self._path.append(link)
-
+        next_link = self._get_next_links()[action]
+        dst_node: NetworkNode = next_link[1]
+        self._path.append(next_link)
         # Check if we are in a terminal state
         terminated = False
+        reward = 0
         if (dst_node.node_type == NetworkNodeType.GW):
+            reward = self._get_reward()
             terminated = True
+            #TODO Allocate resources for the path
+            path: list[NetworkLink] = []
+            for (_, _, l) in self._path:
+                path.append(l["data"])
+            self._network.assign_path_to_device(self._dev, path)
         obs = self._get_obs()
         info = self._get_info()
-        reward = self._get_reward()
         return obs, reward, terminated, False, info
 
     def _get_info(self) -> dict:
@@ -111,7 +113,7 @@ class NetworkEnv(gym.Env):
             dict: The information about the environment's current
             state.
         """
-        return self._get_obs()
+        return {}
 
     def _get_obs(self):
         """Get the information that is observable by the agents about
@@ -121,19 +123,32 @@ class NetworkEnv(gym.Env):
             dict: The information that is observable by the agents about
         the environment's current state.
         """
-        links: list[NetworkLink] = self._network.get_next_links(self._dev,
-                                                                self._path[-1],
-                                                                self._actions)
-        obs: list = []
-        for link in links:
-            c = 0.0
-            if (self._dev in link.routed_flows):
+        # Get all the possible links
+        next_links = self._get_next_links()
+        observations = []
+        for (_, _, l) in next_links:
+            if (isinstance(l, dict)):
+                link: NetworkLink = l["data"]
                 c = 1.0
-            l = link.delay
-            t = link.available_throughput
-            obs.append([c,l,t])
-
-        return np.array(obs, dtype=np.float64)
+                if (self._dev in link.routed_flows):
+                    c = 0.0
+                l = link.delay
+                t = link.available_throughput
+            else:
+                c = self._obs_space.high[1]
+                l = self._obs_space.high[1]
+                t = self._obs_space.low[2]
+            observations.append([c,l,t])
+        remaining_links = len(observations) < self._actions
+        if (remaining_links > 0):
+            for _ in range(remaining_links):
+                observations.append([self._obs_space.low[0],
+                                     self._obs_space.low[1],
+                                     self._obs_space.low[2]])
+        observations.sort(key=lambda obs: (obs[0],
+                                           obs[1],
+                                           self._obs_space.high[2] - obs[2]))
+        return np.array(observations, dtype=np.float64)
 
     def _get_reward(self):
         """Get the reward associated to the actions carried out during
@@ -151,3 +166,34 @@ class NetworkEnv(gym.Env):
         changes = (1 - changes / len(self._path))
         reward = changes * 0.7 + delay * 0.3
         return reward
+
+    def _get_next_links(self) -> list[ExtendedNetworkLink]:
+        """Return the self.actions next edges that lead to the gateway.
+        To this end, all the possible links are orderded and filtered.
+        If there are less than self._actions, the remaining one are
+        padded (action masking).
+
+        Returns:
+            list[ExtendedNetworkLink]: The possible next NetworkLink
+            that may be chosen (padded if needed).
+        """
+        next_links = self._network.get_next_link(self._path[-1])
+        remainin_links = self._actions - len(next_links)
+        if (remainin_links > 0):
+            for _ in range(remainin_links):
+                next_links.append((0,0,0))
+        return next_links
+
+if __name__ == "__main__":
+    from pathlib import Path
+    import matplotlib.pyplot as plt
+    my_net = Network(Path("/home/santiago/Documents/Trabajo/Workspace/uav-mobility-app/input/network_00.json"))
+    my_net_env = NetworkEnv(my_net)
+    for _ in range(20):
+        obs, _ = my_net_env.reset()
+        obs, reward, terminated, _, info = my_net_env.step(0)
+        obs, reward, terminated, _, info = my_net_env.step(0)
+        obs, reward, terminated, _, info = my_net_env.step(0)
+
+        my_net.show_network_info()
+        plt.show()

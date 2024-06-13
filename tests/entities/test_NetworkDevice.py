@@ -26,6 +26,7 @@ class test_NetworkDevice(unittest.TestCase):
         self.assertEqual(dev_type, network_dev.device_type)
         self.assertEqual(throughput_req, network_dev.throughput_req)
         self.assertEqual(delay_req, network_dev.delay_req)
+        self.assertFalse(network_dev.is_active)
 
     def test_initialization_empty_name(self):
         """Test that the NetworkDevice is initialized as intended when
@@ -47,6 +48,7 @@ class test_NetworkDevice(unittest.TestCase):
         self.assertEqual(dev_type, network_dev.device_type)
         self.assertEqual(throughput_req, network_dev.throughput_req)
         self.assertEqual(delay_req, network_dev.delay_req)
+        self.assertFalse(network_dev.is_active)
 
     def test_change_id(self):
         """Test that the id of a NetworkDevice is not mutable."""
@@ -203,8 +205,6 @@ class test_NetworkDevice(unittest.TestCase):
         """Test that the position of a NetworkDevice of type
         NetworkDeviceType.CAM does not change.
         """
-
-
         id = 120
         name = "device_00"
         dev_type = NetworkDeviceType.CAM
@@ -220,3 +220,24 @@ class test_NetworkDevice(unittest.TestCase):
         new_position = (4, 4)
         network_dev.position = new_position
         self.assertEqual(network_dev.position, position)
+
+    def test_change_is_active(self):
+        """Test that the is_active flag of a device can be modified to
+        True and False.
+        """
+        id = 120
+        name = "device_00"
+        dev_type = NetworkDeviceType.CAM
+        delay_req = 12.1
+        throughput_req = 89.3
+        position = (2, 2)
+        network_dev: NetworkDevice = NetworkDevice(id,
+                                                   name,
+                                                   dev_type,
+                                                   delay_req,
+                                                   throughput_req,
+                                                   position)
+        network_dev.is_active = True
+        self.assertTrue(network_dev.is_active)
+        network_dev.is_active = False
+        self.assertFalse(network_dev.is_active)

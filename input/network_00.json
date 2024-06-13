@@ -1,0 +1,665 @@
+{
+    "network_nodes":
+    [
+        {
+            "node_id": 0,
+            "name": "gateway",
+            "node_type": "GW",
+            "position": [4, 5]
+        },
+        {
+            "node_id": 1,
+            "name": "switch_04",
+            "node_type": "SW",
+            "position": [3, 3]
+        },
+        {
+            "node_id": 2,
+            "name": "switch_05",
+            "node_type": "SW",
+            "position": [3, 7]
+        },
+        {
+            "node_id": 3,
+            "name": "switch_01",
+            "node_type": "SW",
+            "position": [2, 1]
+        },
+        {
+            "node_id": 4,
+            "name": "switch_02",
+            "node_type": "SW",
+            "position": [2, 5]
+        },
+        {
+            "node_id": 5,
+            "name": "switch_03",
+            "node_type": "SW",
+            "position": [2, 9]
+        },
+        {
+            "node_id": 6,
+            "name": "ap_00",
+            "node_type": "AP",
+            "position": [1, 0]
+        },
+        {
+            "node_id": 7,
+            "name": "ap_01",
+            "node_type": "AP",
+            "position": [1, 2]
+        },
+        {
+            "node_id": 8,
+            "name": "ap_02",
+            "node_type": "AP",
+            "position": [1, 4]
+        },
+        {
+            "node_id": 9,
+            "name": "ap_04",
+            "node_type": "AP",
+            "position": [1, 6]
+        },
+        {
+            "node_id": 10,
+            "name": "ap_05",
+            "node_type": "AP",
+            "position": [1, 8]
+        },
+        {
+            "node_id": 11,
+             "name": "ap_06",
+             "node_type": "AP",
+             "position": [1, 10]
+        }
+    ],
+    "network_links":
+        [
+            {
+                "link_id": 100,
+                "name": "gateway | switch_04",
+                "nodes": [0, 1],
+                "max_throughput": 1000.0,
+                "available_throughput": 1000.0,
+                "routed_flows": [],
+                "delay": 1.0
+            },
+            {
+                "link_id": 101,
+                "name": "switch_04 | gateway",
+                "nodes": [1, 0],
+                "max_throughput": 1000.0,
+                "available_throughput": 1000.0,
+                "routed_flows": [],
+                "delay": 1.0
+            },
+            {
+                "link_id": 102,
+                "name": "gateway | switch_05",
+                "nodes": [0, 2],
+                "max_throughput": 1000.0,
+                "available_throughput": 1000.0,
+                "routed_flows": [],
+                "delay": 1.0
+            },
+            {
+                "link_id": 103,
+                "name": "switch_05 | gateway",
+                "nodes": [2, 0],
+                "max_throughput": 1000.0,
+                "available_throughput": 1000.0,
+                "routed_flows": [],
+                "delay": 1.0
+            },
+            {
+                "link_id": 104,
+                "name": "switch_04 | switch_05",
+                "nodes": [1, 2],
+                "max_throughput": 1000.0,
+                "available_throughput": 1000.0,
+                "routed_flows": [],
+                "delay": 1.0
+            },
+            {
+                "link_id": 105,
+                "name": "switch_05 | switch_04",
+                "nodes": [2, 1],
+                "max_throughput": 1000.0,
+                "available_throughput": 1000.0,
+                "routed_flows": [],
+                "delay": 1.0
+            },
+            {
+                "link_id": 106,
+                "name": "switch_04 | switch_01",
+                "nodes": [1, 3],
+                "max_throughput": 1000.0,
+                "available_throughput": 1000.0,
+                "routed_flows": [],
+                "delay": 1.0
+            },
+            {
+                "link_id": 107,
+                "name": "switch_01 | switch_04",
+                "nodes": [3, 1],
+                "max_throughput": 1000.0,
+                "available_throughput": 1000.0,
+                "routed_flows": [],
+                "delay": 1.0
+            },
+            {
+                "link_id": 108,
+                "name": "switch_04 | switch_02",
+                "nodes": [1, 4],
+                "max_throughput": 1000.0,
+                "available_throughput": 1000.0,
+                "routed_flows": [],
+                "delay": 1.0
+            },
+            {
+                "link_id": 109,
+                "name": "switch_02 | switch_04",
+                "nodes": [4, 1],
+                "max_throughput": 1000.0,
+                "available_throughput": 1000.0,
+                "routed_flows": [],
+                "delay": 1.0
+            },
+            {
+                "link_id": 110,
+                "name": "switch_01 | switch_02",
+                "nodes": [3, 4],
+                "max_throughput": 1000.0,
+                "available_throughput": 1000.0,
+                "routed_flows": [],
+                "delay": 1.0
+            },
+            {
+                "link_id": 111,
+                "name": "switch_02 | switch_01",
+                "nodes": [4, 3],
+                "max_throughput": 1000.0,
+                "available_throughput": 1000.0,
+                "routed_flows": [],
+                "delay": 1.0
+            },
+            {
+                "link_id": 112,
+                "name": "switch_05 | switch_02",
+                "nodes": [2, 4],
+                "max_throughput": 1000.0,
+                "available_throughput": 1000.0,
+                "routed_flows": [],
+                "delay": 1.0
+            },
+            {
+                "link_id": 113,
+                "name": "switch_02 | switch_05",
+                "nodes": [4, 2],
+                "max_throughput": 1000.0,
+                "available_throughput": 1000.0,
+                "routed_flows": [],
+                "delay": 1.0
+            },
+            {
+                "link_id": 114,
+                "name": "switch_05 | switch_03",
+                "nodes": [2, 5],
+                "max_throughput": 1000.0,
+                "available_throughput": 1000.0,
+                "routed_flows": [],
+                "delay": 1.0
+            },
+            {
+                "link_id": 115,
+                "name": "switch_03 | switch_05",
+                "nodes": [5, 2],
+                "max_throughput": 1000.0,
+                "available_throughput": 1000.0,
+                "routed_flows": [],
+                "delay": 1.0
+            },
+            {
+                "link_id": 116,
+                "name": "switch_02 | switch_03",
+                "nodes": [4, 5],
+                "max_throughput": 1000.0,
+                "available_throughput": 1000.0,
+                "routed_flows": [],
+                "delay": 1.0
+            },
+            {
+                "link_id": 117,
+                "name": "switch_03 | switch_02",
+                "nodes": [5, 4],
+                "max_throughput": 1000.0,
+                "available_throughput": 1000.0,
+                "routed_flows": [],
+                "delay": 1.0
+            },
+            {
+                "link_id": 118,
+                "name": "switch_01 | ap_00",
+                "nodes": [3, 6],
+                "max_throughput": 1000.0,
+                "available_throughput": 1000.0,
+                "routed_flows": [],
+                "delay": 1.0
+            },
+            {
+                "link_id": 119,
+                "name": "ap_00 | switch_01",
+                "nodes": [6, 3],
+                "max_throughput": 1000.0,
+                "available_throughput": 1000.0,
+                "routed_flows": [],
+                "delay": 1.0
+            },
+            {
+                "link_id": 120,
+                "name": "switch_01 | ap_01",
+                "nodes": [3, 7],
+                "max_throughput": 1000.0,
+                "available_throughput": 1000.0,
+                "routed_flows": [],
+                "delay": 1.0
+            },
+            {
+                "link_id": 121,
+                "name": "ap_01 | switch_01",
+                "nodes": [7, 3],
+                "max_throughput": 1000.0,
+                "available_throughput": 1000.0,
+                "routed_flows": [],
+                "delay": 1.0
+            },
+            {
+                "link_id": 122,
+                "name": "switch_02 | ap_02",
+                "nodes": [4, 8],
+                "max_throughput": 1000.0,
+                "available_throughput": 1000.0,
+                "routed_flows": [],
+                "delay": 1.0
+            },
+            {
+                "link_id": 123,
+                "name": "ap_02 | switch_02",
+                "nodes": [8, 4],
+                "max_throughput": 1000.0,
+                "available_throughput": 1000.0,
+                "routed_flows": [],
+                "delay": 1.0
+            },
+            {
+                "link_id": 124,
+                "name": "switch_02 | ap_03",
+                "nodes": [4, 9],
+                "max_throughput": 1000.0,
+                "available_throughput": 1000.0,
+                "routed_flows": [],
+                "delay": 1.0
+            },
+            {
+                "link_id": 125,
+                "name": "ap_03 | switch_02",
+                "nodes": [9, 4],
+                "max_throughput": 1000.0,
+                "available_throughput": 1000.0,
+                "routed_flows": [],
+                "delay": 1.0
+            },
+            {
+                "link_id": 126,
+                "name": "switch_03 | ap_04",
+                "nodes": [5, 10],
+                "max_throughput": 1000.0,
+                "available_throughput": 1000.0,
+                "routed_flows": [],
+                "delay": 1.0
+            },
+            {
+                "link_id": 127,
+                "name": "ap_04 | switch_03",
+                "nodes": [10, 5],
+                "max_throughput": 1000.0,
+                "available_throughput": 1000.0,
+                "routed_flows": [],
+                "delay": 1.0
+            },
+            {
+                "link_id": 128,
+                "name": "switch_03 | ap_05",
+                "nodes": [5, 11],
+                "max_throughput": 1000.0,
+                "available_throughput": 1000.0,
+                "routed_flows": [],
+                "delay": 1.0
+            },
+            {
+                "link_id": 129,
+                "name": "ap_05 | switch_03",
+                "nodes": [11, 5],
+                "max_throughput": 1000.0,
+                "available_throughput": 1000.0,
+                "routed_flows": [],
+                "delay": 1.0
+            },
+            {
+                "link_id": 130,
+                "name": "ap_00 | uav_00",
+                "nodes": [6, 200],
+                "max_throughput": 1000.0,
+                "available_throughput": 1000.0,
+                "routed_flows": [],
+                "delay": 1.0
+            },
+            {
+                "link_id": 131,
+                "name": "uav_00 | ap_00",
+                "nodes": [200, 6],
+                "max_throughput": 1000.0,
+                "available_throughput": 1000.0,
+                "routed_flows": [],
+                "delay": 1.0
+            },
+            {
+                "link_id": 132,
+                "name": "ap_00 | cam_00",
+                "nodes": [6, 206],
+                "max_throughput": 1000.0,
+                "available_throughput": 1000.0,
+                "routed_flows": [],
+                "delay": 1.0
+            },
+            {
+                "link_id": 133,
+                "name": "cam_00 | ap_00",
+                "nodes": [206, 6],
+                "max_throughput": 1000.0,
+                "available_throughput": 1000.0,
+                "routed_flows": [],
+                "delay": 1.0
+            },
+            {
+                "link_id": 134,
+                "name": "ap_01 | uav_01",
+                "nodes": [7, 201],
+                "max_throughput": 1000.0,
+                "available_throughput": 1000.0,
+                "routed_flows": [],
+                "delay": 1.0
+            },
+            {
+                "link_id": 135,
+                "name": "uav_01 | ap_01",
+                "nodes": [201, 7],
+                "max_throughput": 1000.0,
+                "available_throughput": 1000.0,
+                "routed_flows": [],
+                "delay": 1.0
+            },
+            {
+                "link_id": 136,
+                "name": "ap_01 | cam_01",
+                "nodes": [7, 207],
+                "max_throughput": 1000.0,
+                "available_throughput": 1000.0,
+                "routed_flows": [],
+                "delay": 1.0
+            },
+            {
+                "link_id": 137,
+                "name": "cam_01 | ap_01",
+                "nodes": [207, 7],
+                "max_throughput": 1000.0,
+                "available_throughput": 1000.0,
+                "routed_flows": [],
+                "delay": 1.0
+            },
+            {
+                "link_id": 138,
+                "name": "ap_02 | uav_02",
+                "nodes": [8, 202],
+                "max_throughput": 1000.0,
+                "available_throughput": 1000.0,
+                "routed_flows": [],
+                "delay": 1.0
+            },
+            {
+                "link_id": 139,
+                "name": "uav_02 | ap_02",
+                "nodes": [202, 8],
+                "max_throughput": 1000.0,
+                "available_throughput": 1000.0,
+                "routed_flows": [],
+                "delay": 1.0
+            },
+            {
+                "link_id": 140,
+                "name": "ap_02 | cam_02",
+                "nodes": [8, 208],
+                "max_throughput": 1000.0,
+                "available_throughput": 1000.0,
+                "routed_flows": [],
+                "delay": 1.0
+            },
+            {
+                "link_id": 141,
+                "name": "cam_02 | ap_02",
+                "nodes": [208, 8],
+                "max_throughput": 1000.0,
+                "available_throughput": 1000.0,
+                "routed_flows": [],
+                "delay": 1.0
+            },
+            {
+                "link_id": 142,
+                "name": "ap_03 | uav_03",
+                "nodes": [9, 203],
+                "max_throughput": 1000.0,
+                "available_throughput": 1000.0,
+                "routed_flows": [],
+                "delay": 1.0
+            },
+            {
+                "link_id": 143,
+                "name": "uav_03 | ap_03",
+                "nodes": [203, 9],
+                "max_throughput": 1000.0,
+                "available_throughput": 1000.0,
+                "routed_flows": [],
+                "delay": 1.0
+            },
+            {
+                "link_id": 144,
+                "name": "ap_03 | cam_03",
+                "nodes": [9, 209],
+                "max_throughput": 1000.0,
+                "available_throughput": 1000.0,
+                "routed_flows": [],
+                "delay": 1.0
+            },
+            {
+                "link_id": 145,
+                "name": "cam_03 | ap_03",
+                "nodes": [209, 9],
+                "max_throughput": 1000.0,
+                "available_throughput": 1000.0,
+                "routed_flows": [],
+                "delay": 1.0
+            },
+            {
+                "link_id": 146,
+                "name": "ap_04 | uav_04",
+                "nodes": [10, 204],
+                "max_throughput": 1000.0,
+                "available_throughput": 1000.0,
+                "routed_flows": [],
+                "delay": 1.0
+            },
+            {
+                "link_id": 147,
+                "name": "uav_04 | ap_04",
+                "nodes": [204, 10],
+                "max_throughput": 1000.0,
+                "available_throughput": 1000.0,
+                "routed_flows": [],
+                "delay": 1.0
+            },
+            {
+                "link_id": 148,
+                "name": "ap_04 | cam_04",
+                "nodes": [10, 210],
+                "max_throughput": 1000.0,
+                "available_throughput": 1000.0,
+                "routed_flows": [],
+                "delay": 1.0
+            },
+            {
+                "link_id": 149,
+                "name": "cam_04 | ap_04",
+                "nodes": [210, 10],
+                "max_throughput": 1000.0,
+                "available_throughput": 1000.0,
+                "routed_flows": [],
+                "delay": 1.0
+            },
+            {
+                "link_id": 150,
+                "name": "ap_05 | uav_05",
+                "nodes": [11, 205],
+                "max_throughput": 1000.0,
+                "available_throughput": 1000.0,
+                "routed_flows": [],
+                "delay": 1.0
+            },
+            {
+                "link_id": 151,
+                "name": "uav_05 | ap_05",
+                "nodes": [205, 11],
+                "max_throughput": 1000.0,
+                "available_throughput": 1000.0,
+                "routed_flows": [],
+                "delay": 1.0
+            },
+            {
+                "link_id": 152,
+                "name": "ap_05 | cam_05",
+                "nodes": [11, 211],
+                "max_throughput": 1000.0,
+                "available_throughput": 1000.0,
+                "routed_flows": [],
+                "delay": 1.0
+            },
+            {
+                "link_id": 153,
+                "name": "cam_05 | ap_05",
+                "nodes": [211, 11],
+                "max_throughput": 1000.0,
+                "available_throughput": 1000.0,
+                "routed_flows": [],
+                "delay": 1.0
+            }
+        ],
+    "network_devices":
+    [
+        {
+            "device_id": 200,
+            "name": "uav_00",
+            "device_type": "UAV",
+            "delay_req": 10.0,
+            "throughput_req": 100.0,
+            "position": [0, 0]
+        },
+        {
+            "device_id": 201,
+            "name": "uav_01",
+            "device_type": "UAV",
+            "delay_req": 10.0,
+            "throughput_req": 100.0,
+            "position": [0, 2]
+        },
+        {
+            "device_id": 202,
+            "name": "uav_02",
+            "device_type": "UAV",
+            "delay_req": 10.0,
+            "throughput_req": 100.0,
+            "position": [0, 4]
+        },
+        {
+            "device_id": 203,
+            "name": "uav_03",
+            "device_type": "UAV",
+            "delay_req": 10.0,
+            "throughput_req": 100.0,
+            "position": [0, 6]
+        },
+        {
+            "device_id": 204,
+            "name": "uav_04",
+            "device_type": "UAV",
+            "delay_req": 10.0,
+            "throughput_req": 100.0,
+            "position": [0, 8]
+        },
+        {
+            "device_id": 205,
+            "name": "uav_05",
+            "device_type": "UAV",
+            "delay_req": 10.0,
+            "throughput_req": 100.0,
+            "position": [0, 10]
+        },
+        {
+            "device_id": 206,
+            "name": "cam_00",
+            "device_type": "CAM",
+            "delay_req": 5.0,
+            "throughput_req": 100.0,
+            "position": [0, 1]
+        },
+        {
+            "device_id": 207,
+            "name": "cam_01",
+            "device_type": "CAM",
+            "delay_req": 5.0,
+            "throughput_req": 100.0,
+            "position": [0, 3]
+        },
+        {
+            "device_id": 208,
+            "name": "cam_02",
+            "device_type": "CAM",
+            "delay_req": 10.0,
+            "throughput_req": 100.0,
+            "position": [0, 5]
+        },
+        {
+            "device_id": 209,
+            "name": "cam_03",
+            "device_type": "CAM",
+            "delay_req": 5.0,
+            "throughput_req": 100.0,
+            "position": [0, 7]
+        },
+        {
+            "device_id": 210,
+            "name": "cam_04",
+            "device_type": "CAM",
+            "delay_req": 5.0,
+            "throughput_req": 100.0,
+            "position": [0, 9]
+        },
+        {
+            "device_id": 211,
+            "name": "cam_05",
+            "device_type": "CAM",
+            "delay_req": 5.0,
+            "throughput_req": 100.0,
+            "position": [0, 11]
+        }
+    ]
+}

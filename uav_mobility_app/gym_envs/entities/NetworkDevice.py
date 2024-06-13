@@ -28,13 +28,14 @@ class NetworkDevice(object):
             of the node. Defaults to (0,0).
         """
 
-        self._device_id = device_id
-        self._device_name = device_name
-        self._device_type = device_type
+        self._device_id: int = device_id
+        self._device_name: str = device_name
+        self._device_type: NetworkDeviceType = device_type
         if (device_name == ""): self._device_name = str(device_id)
-        self._delay_req = delay_req
-        self._throughput_req = throughput_req
-        self._position = position
+        self._delay_req: float = delay_req
+        self._throughput_req: float = throughput_req
+        self._position: tuple[int, int] = position
+        self._is_active: bool = False
 
     @property
     def id(self) -> int:
@@ -111,6 +112,25 @@ class NetworkDevice(object):
             return False
         self._position = new_position
         return True
+
+    @property
+    def is_active(self) -> bool:
+        """Returns whether the NetworkDevice is currently active or not,
+        i.e. it is sending and receiving data.
+
+        Returns:
+            bool: Whether the NetworkDevice is currently active or not
+        """
+        return self._is_active
+
+    @is_active.setter
+    def is_active(self, new_is_active: bool) -> None:
+        """Sets the is_active of the device to new_is_active.
+
+        Args:
+            new_is_active (bool): The new value for is_active.
+        """
+        self._is_active = new_is_active
 
     def __str__(self) -> str:
         """Provide a descriptive string representation of the
