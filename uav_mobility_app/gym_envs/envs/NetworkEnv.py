@@ -17,6 +17,7 @@ class NetworkEnv(gym.Env):
 
     def __init__(self,
                  network: Network,
+                 n_actions: int= 3,
                  render_mode:str = None) -> None:
         """_summary_
 
@@ -24,8 +25,7 @@ class NetworkEnv(gym.Env):
             render_mode (str, optional): _description_. Defaults to None.
         """
         self._network: Network = network
-        self._actions = 3
-        self.action_space = spaces.Discrete(self._actions,
+        self.action_space = spaces.Discrete(n_actions,
                                             start=0)
 
         self._obs_space = spaces.Box(low=np.array([0.0, 0.0, 0.0]),
@@ -33,7 +33,8 @@ class NetworkEnv(gym.Env):
                                                      20.0+1.0,
                                                      1000.0+1.0]),
                                       shape=(3,))
-        self.observation_space = spaces.Tuple((self._obs_space for _ in range(self._actions)))
+        self.observation_space =\
+            spaces.Tuple((self._obs_space for _ in range(n_actions)))
         self.observation_space = flatten_space(self.observation_space)
         self._dev: NetworkDevice = None
         self._path: list[tuple[NetworkNode,
@@ -57,17 +58,18 @@ class NetworkEnv(gym.Env):
         """
         if (seed != None):
             random.seed(seed)
-        if (options != None):
-            for d in self._network.network_devices:
-                dev_path = self._network.get_path_device(d)
-                self._network.free_path_device(d, dev_path)
-
+        if (isinstance(options, dict)):
+            if ("hard_reset" in options):
+                if (options["hard_reset"] == True):
+                    for d in self._network.network_devices:
+                        dev_path = self._network.get_path_device(d)
+                        self._network.free_path_device(d, dev_path)
+                        d.is_active = False
         uav_or_cam = random.randint(0, 1)
         if (uav_or_cam == 0):
             self._dev = self._network.generate_cam_event()
         else:
             self._dev = self._network.generate_uav_event()
-
         self._path = []
         link= list(self._network.out_edges(self._dev, data=True))[0]
         self._path.append(link)
@@ -89,18 +91,27 @@ class NetworkEnv(gym.Env):
         # Based on the action, select the corresponding path
         next_link = self._get_next_links()[action]
         dst_node: NetworkNode = next_link[1]
-        self._path.append(next_link)
-        # Check if we are in a terminal state
         terminated = False
         reward = 0
-        if (dst_node.node_type == NetworkNodeType.GW):
-            reward = self._get_reward()
-            terminated = True
-            #TODO Allocate resources for the path
-            path: list[NetworkLink] = []
-            for (_, _, l) in self._path:
-                path.append(l["data"])
-            self._network.assign_path_to_device(self._dev, path)
+        # Check if a "false" NetworkLink is selected
+        if (isinstance(dst_node, NetworkNode)):
+            self._path.append(next_link)
+        # Check if we are in a terminal state
+            if (dst_node.node_type == NetworkNodeType.GW):
+                reward = self._get_reward()
+                terminated = True
+                #TODO Allocate resources for the path
+                path: list[NetworkLink] = []
+                for (_, _, l) in self._path:
+                    path.append(l["data"])
+                self._network.assign_path_to_device(self._dev, path)
+        # print("SANTIAGO")
+        # for l in self._get_next_links():
+        #     print(l[0])
+        #     print(l[1])
+        #     print(l[2])
+        # print("GARCIA GIL")
+
         obs = self._get_obs()
         info = self._get_info()
         return obs, reward, terminated, False, info
@@ -135,11 +146,11 @@ class NetworkEnv(gym.Env):
                 l = link.delay
                 t = link.available_throughput
             else:
-                c = self._obs_space.high[1]
+                c = self._obs_space.high[0]
                 l = self._obs_space.high[1]
                 t = self._obs_space.low[2]
             observations.append([c,l,t])
-        remaining_links = len(observations) < self._actions
+        remaining_links = len(observations) < self.action_space.n
         if (remaining_links > 0):
             for _ in range(remaining_links):
                 observations.append([self._obs_space.low[0],
@@ -178,7 +189,7 @@ class NetworkEnv(gym.Env):
             that may be chosen (padded if needed).
         """
         next_links = self._network.get_next_link(self._path[-1])
-        remainin_links = self._actions - len(next_links)
+        remainin_links = self.action_space.n - len(next_links)
         if (remainin_links > 0):
             for _ in range(remainin_links):
                 next_links.append((0,0,0))

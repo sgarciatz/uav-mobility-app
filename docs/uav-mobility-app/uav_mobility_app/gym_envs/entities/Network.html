@@ -33,11 +33,8 @@ from uav_mobility_app.gym_envs.entities.NetworkNode import NetworkNode
 from uav_mobility_app.gym_envs.entities.NetworkLink import NetworkLink
 from uav_mobility_app.gym_envs.entities.NetworkDevice import NetworkDevice
 from uav_mobility_app.gym_envs.enums.NetworkDeviceType import NetworkDeviceType
+from uav_mobility_app.gym_envs.entities.ExtendedNetworkLink import ExtendedNetworkLink
 import random
-
-ExtendedNetworkLink = tuple[NetworkNode,
-                            NetworkNode,
-                            dict[str, NetworkLink]]
 
 class Network(nx.DiGraph):
     &#34;&#34;&#34;This class represents the Network as a directed graph. It is in
@@ -95,7 +92,7 @@ class Network(nx.DiGraph):
         return self._network_nodes
 
     @property
-    def gateways(self) -&gt; list[NetworkDevice]:
+    def gateways(self) -&gt; list[NetworkNode]:
         &#34;&#34;&#34;Returns the list of the NetworkDevices of type
         NetworkDeviceType.GW within the graph.
 
@@ -106,7 +103,7 @@ class Network(nx.DiGraph):
         return self._gateways
 
     @property
-    def switches(self) -&gt; list[NetworkDevice]:
+    def switches(self) -&gt; list[NetworkNode]:
         &#34;&#34;&#34;Returns the list of the NetworkDevices of type
         NetworkDeviceType.SW within the graph.
 
@@ -118,7 +115,7 @@ class Network(nx.DiGraph):
         return self._switches
 
     @property
-    def access_points(self) -&gt; list[NetworkDevice]:
+    def access_points(self) -&gt; list[NetworkNode]:
         &#34;&#34;&#34;Returns the list of the NetworkDevices of type
         NetworkDeviceType.AP within the graph.
 
@@ -286,23 +283,17 @@ class Network(nx.DiGraph):
             l.remove_flow(device)
 
     def get_next_link(self,
-                      link: ExtendedNetworkLink
-                      ) -&gt; list[ExtendedNetworkLink]:
+                      link: ExtendedNetworkLink) -&gt; list[ExtendedNetworkLink]:
         &#34;&#34;&#34;Given a graph edge, a tuple of the src and dst NetworkNodes
         and the NetworkLink, return the next edges that lead to the
         gateway.
 
         Args:
-            link (tuple[NetworkNode,
-                        NetworkNode,
-                        dict[str,NetworkDevice]]): The current
-            edge.
+            link (ExtendedNetworkLink): The current edge (NetworkLink).
 
         Returns:
-            list[tuple[NetworkNode,
-                       NetworkNode,
-                       dict[str, NetworkLink]]]: The list of possible
-            next NetworkLinks that can be selected to build the path.
+            list[ExtendedNetworkLink]: The list of possible next
+            NetworkLinks that can be selected to build the path.
         &#34;&#34;&#34;
         dst_node: NetworkNode = link[1]
         gw: NetworkNode = self._gateways[0]
@@ -337,6 +328,7 @@ class Network(nx.DiGraph):
         # Choose the UAV to move
         random_uav_index: int = random.randint(0, len(self._uavs) - 1)
         random_uav: NetworkDevice = self._uavs[random_uav_index]
+        random_uav.is_active = True
         # Remove its current NetworkLinks
         in_link = list(self.in_edges(random_uav, data = True))[0]
         current_ap: NetworkDevice = in_link[0]
@@ -374,11 +366,11 @@ class Network(nx.DiGraph):
             NetworkDevice | None: _description_
         &#34;&#34;&#34;
         # Choose a random inactive Camera to start streaming
-        inactive_cams = list(filter(lambda cam: cam.is_active == False,
-                               self._cams))
-
-        random_cam_index = random.randint(0, len(inactive_cams)-1)
-        random_cam: NetworkDevice = self._cams[random_cam_index]
+        inactive_cams: list[NetworkDevice] = list(filter(
+            lambda cam: cam.is_active == False,
+            self._cams))
+        random_cam_index: int = random.randint(0, len(inactive_cams)-1)
+        random_cam: NetworkDevice = inactive_cams[random_cam_index]
         random_cam.is_active = True
         return random_cam
 
@@ -599,7 +591,7 @@ NetworkLinks and NetworkDevices.</p>
         return self._network_nodes
 
     @property
-    def gateways(self) -&gt; list[NetworkDevice]:
+    def gateways(self) -&gt; list[NetworkNode]:
         &#34;&#34;&#34;Returns the list of the NetworkDevices of type
         NetworkDeviceType.GW within the graph.
 
@@ -610,7 +602,7 @@ NetworkLinks and NetworkDevices.</p>
         return self._gateways
 
     @property
-    def switches(self) -&gt; list[NetworkDevice]:
+    def switches(self) -&gt; list[NetworkNode]:
         &#34;&#34;&#34;Returns the list of the NetworkDevices of type
         NetworkDeviceType.SW within the graph.
 
@@ -622,7 +614,7 @@ NetworkLinks and NetworkDevices.</p>
         return self._switches
 
     @property
-    def access_points(self) -&gt; list[NetworkDevice]:
+    def access_points(self) -&gt; list[NetworkNode]:
         &#34;&#34;&#34;Returns the list of the NetworkDevices of type
         NetworkDeviceType.AP within the graph.
 
@@ -790,23 +782,17 @@ NetworkLinks and NetworkDevices.</p>
             l.remove_flow(device)
 
     def get_next_link(self,
-                      link: ExtendedNetworkLink
-                      ) -&gt; list[ExtendedNetworkLink]:
+                      link: ExtendedNetworkLink) -&gt; list[ExtendedNetworkLink]:
         &#34;&#34;&#34;Given a graph edge, a tuple of the src and dst NetworkNodes
         and the NetworkLink, return the next edges that lead to the
         gateway.
 
         Args:
-            link (tuple[NetworkNode,
-                        NetworkNode,
-                        dict[str,NetworkDevice]]): The current
-            edge.
+            link (ExtendedNetworkLink): The current edge (NetworkLink).
 
         Returns:
-            list[tuple[NetworkNode,
-                       NetworkNode,
-                       dict[str, NetworkLink]]]: The list of possible
-            next NetworkLinks that can be selected to build the path.
+            list[ExtendedNetworkLink]: The list of possible next
+            NetworkLinks that can be selected to build the path.
         &#34;&#34;&#34;
         dst_node: NetworkNode = link[1]
         gw: NetworkNode = self._gateways[0]
@@ -841,6 +827,7 @@ NetworkLinks and NetworkDevices.</p>
         # Choose the UAV to move
         random_uav_index: int = random.randint(0, len(self._uavs) - 1)
         random_uav: NetworkDevice = self._uavs[random_uav_index]
+        random_uav.is_active = True
         # Remove its current NetworkLinks
         in_link = list(self.in_edges(random_uav, data = True))[0]
         current_ap: NetworkDevice = in_link[0]
@@ -878,11 +865,11 @@ NetworkLinks and NetworkDevices.</p>
             NetworkDevice | None: _description_
         &#34;&#34;&#34;
         # Choose a random inactive Camera to start streaming
-        inactive_cams = list(filter(lambda cam: cam.is_active == False,
-                               self._cams))
-
-        random_cam_index = random.randint(0, len(inactive_cams)-1)
-        random_cam: NetworkDevice = self._cams[random_cam_index]
+        inactive_cams: list[NetworkDevice] = list(filter(
+            lambda cam: cam.is_active == False,
+            self._cams))
+        random_cam_index: int = random.randint(0, len(inactive_cams)-1)
+        random_cam: NetworkDevice = inactive_cams[random_cam_index]
         random_cam.is_active = True
         return random_cam
 
@@ -974,7 +961,7 @@ NetworkLinks and NetworkDevices.</p>
 </ul>
 <h3>Instance variables</h3>
 <dl>
-<dt id="uav-mobility-app.uav_mobility_app.gym_envs.entities.Network.Network.access_points"><code class="name">var <span class="ident">access_points</span> : list[uav_mobility_app.gym_envs.entities.NetworkDevice.NetworkDevice]</code></dt>
+<dt id="uav-mobility-app.uav_mobility_app.gym_envs.entities.Network.Network.access_points"><code class="name">var <span class="ident">access_points</span> : list[uav_mobility_app.gym_envs.entities.NetworkNode.NetworkNode]</code></dt>
 <dd>
 <div class="desc"><p>Returns the list of the NetworkDevices of type
 NetworkDeviceType.AP within the graph.</p>
@@ -989,7 +976,7 @@ NetworkDeviceType.AP within the graph.</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
-def access_points(self) -&gt; list[NetworkDevice]:
+def access_points(self) -&gt; list[NetworkNode]:
     &#34;&#34;&#34;Returns the list of the NetworkDevices of type
     NetworkDeviceType.AP within the graph.
 
@@ -1026,7 +1013,7 @@ def cams(self) -&gt; list[NetworkDevice]:
     return self._cams</code></pre>
 </details>
 </dd>
-<dt id="uav-mobility-app.uav_mobility_app.gym_envs.entities.Network.Network.gateways"><code class="name">var <span class="ident">gateways</span> : list[uav_mobility_app.gym_envs.entities.NetworkDevice.NetworkDevice]</code></dt>
+<dt id="uav-mobility-app.uav_mobility_app.gym_envs.entities.Network.Network.gateways"><code class="name">var <span class="ident">gateways</span> : list[uav_mobility_app.gym_envs.entities.NetworkNode.NetworkNode]</code></dt>
 <dd>
 <div class="desc"><p>Returns the list of the NetworkDevices of type
 NetworkDeviceType.GW within the graph.</p>
@@ -1041,7 +1028,7 @@ NetworkDeviceType.GW within the graph.</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
-def gateways(self) -&gt; list[NetworkDevice]:
+def gateways(self) -&gt; list[NetworkNode]:
     &#34;&#34;&#34;Returns the list of the NetworkDevices of type
     NetworkDeviceType.GW within the graph.
 
@@ -1125,7 +1112,7 @@ def network_nodes(self) -&gt; list[NetworkNode]:
     return self._network_nodes</code></pre>
 </details>
 </dd>
-<dt id="uav-mobility-app.uav_mobility_app.gym_envs.entities.Network.Network.switches"><code class="name">var <span class="ident">switches</span> : list[uav_mobility_app.gym_envs.entities.NetworkDevice.NetworkDevice]</code></dt>
+<dt id="uav-mobility-app.uav_mobility_app.gym_envs.entities.Network.Network.switches"><code class="name">var <span class="ident">switches</span> : list[uav_mobility_app.gym_envs.entities.NetworkNode.NetworkNode]</code></dt>
 <dd>
 <div class="desc"><p>Returns the list of the NetworkDevices of type
 NetworkDeviceType.SW within the graph.</p>
@@ -1140,7 +1127,7 @@ NetworkDeviceType.SW within the graph.</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
-def switches(self) -&gt; list[NetworkDevice]:
+def switches(self) -&gt; list[NetworkNode]:
     &#34;&#34;&#34;Returns the list of the NetworkDevices of type
     NetworkDeviceType.SW within the graph.
 
@@ -1308,11 +1295,11 @@ need to allocate resources for the workflow arises.</p>
         NetworkDevice | None: _description_
     &#34;&#34;&#34;
     # Choose a random inactive Camera to start streaming
-    inactive_cams = list(filter(lambda cam: cam.is_active == False,
-                           self._cams))
-
-    random_cam_index = random.randint(0, len(inactive_cams)-1)
-    random_cam: NetworkDevice = self._cams[random_cam_index]
+    inactive_cams: list[NetworkDevice] = list(filter(
+        lambda cam: cam.is_active == False,
+        self._cams))
+    random_cam_index: int = random.randint(0, len(inactive_cams)-1)
+    random_cam: NetworkDevice = inactive_cams[random_cam_index]
     random_cam.is_active = True
     return random_cam</code></pre>
 </details>
@@ -1359,6 +1346,7 @@ instantaneously.</p>
     # Choose the UAV to move
     random_uav_index: int = random.randint(0, len(self._uavs) - 1)
     random_uav: NetworkDevice = self._uavs[random_uav_index]
+    random_uav.is_active = True
     # Remove its current NetworkLinks
     in_link = list(self.in_edges(random_uav, data = True))[0]
     current_ap: NetworkDevice = in_link[0]
@@ -1393,40 +1381,32 @@ instantaneously.</p>
 and the NetworkLink, return the next edges that lead to the
 gateway.</p>
 <h2 id="args">Args</h2>
-<p>link (tuple[NetworkNode,
-NetworkNode,
-dict[str,NetworkDevice]]): The current
-edge.</p>
+<dl>
+<dt><strong><code>link</code></strong> :&ensp;<code>ExtendedNetworkLink</code></dt>
+<dd>The current edge (NetworkLink).</dd>
+</dl>
 <h2 id="returns">Returns</h2>
 <dl>
-<dt>list[tuple[NetworkNode,</dt>
-<dt>NetworkNode,</dt>
-<dt><code>dict[str, NetworkLink]]]</code></dt>
-<dd>The list of possible</dd>
+<dt><code>list[ExtendedNetworkLink]</code></dt>
+<dd>The list of possible next</dd>
 </dl>
-<p>next NetworkLinks that can be selected to build the path.</p></div>
+<p>NetworkLinks that can be selected to build the path.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def get_next_link(self,
-                  link: ExtendedNetworkLink
-                  ) -&gt; list[ExtendedNetworkLink]:
+                  link: ExtendedNetworkLink) -&gt; list[ExtendedNetworkLink]:
     &#34;&#34;&#34;Given a graph edge, a tuple of the src and dst NetworkNodes
     and the NetworkLink, return the next edges that lead to the
     gateway.
 
     Args:
-        link (tuple[NetworkNode,
-                    NetworkNode,
-                    dict[str,NetworkDevice]]): The current
-        edge.
+        link (ExtendedNetworkLink): The current edge (NetworkLink).
 
     Returns:
-        list[tuple[NetworkNode,
-                   NetworkNode,
-                   dict[str, NetworkLink]]]: The list of possible
-        next NetworkLinks that can be selected to build the path.
+        list[ExtendedNetworkLink]: The list of possible next
+        NetworkLinks that can be selected to build the path.
     &#34;&#34;&#34;
     dst_node: NetworkNode = link[1]
     gw: NetworkNode = self._gateways[0]

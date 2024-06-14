@@ -38,7 +38,7 @@ from uav_mobility_app.gym_envs.entities.Network import Network
 from uav_mobility_app.gym_envs.entities.Network import ExtendedNetworkLink
 from uav_mobility_app.gym_envs.utils.NetworkJSONParser import parse_json
 
-class test_NetworkDevice(unittest.TestCase):
+class test_Network(unittest.TestCase):
 
 
     def test_initialization(self):
@@ -58,13 +58,13 @@ class test_NetworkDevice(unittest.TestCase):
             input_data[&#34;network_nodes&#34;])))
         n_network_devices: int = len(input_data[&#34;network_devices&#34;])
         n_network_links: int = len(input_data[&#34;network_links&#34;])
-        my_net = Network(input_path)
-        self.assertEqual(len(my_net.nodes),
+        net = Network(input_path)
+        self.assertEqual(len(net.nodes),
                          n_network_devices + n_network_nodes)
-        self.assertEqual(len(my_net.gateways), n_gws)
-        self.assertEqual(len(my_net.switches), n_sws)
-        self.assertEqual(len(my_net.access_points), n_aps)
-        self.assertEqual(len(my_net.edges),
+        self.assertEqual(len(net.gateways), n_gws)
+        self.assertEqual(len(net.switches), n_sws)
+        self.assertEqual(len(net.access_points), n_aps)
+        self.assertEqual(len(net.edges),
                          n_network_links)
 
     def test_network_nodes(self):
@@ -74,13 +74,64 @@ class test_NetworkDevice(unittest.TestCase):
         input_path: Path = Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;)
         input_data = parse_json(input_path)
         expected_nodes: list[NetworkNode] = input_data[&#34;network_nodes&#34;]
-        my_net = Network(input_path)
-        zipped_nodes = zip(my_net.network_nodes, expected_nodes)
+        net = Network(input_path)
+        zipped_nodes = zip(net.network_nodes, expected_nodes)
         for (n1, n2) in zipped_nodes:
             self.assertEqual(n1.id, n2.id)
             self.assertEqual(n1.name, n2.name)
             self.assertEqual(n1.node_type, n2.node_type)
             self.assertEqual(n1.position, n2.position)
+
+    def test_gateways(self):
+        &#34;&#34;&#34;Test that the NetworkNodes of type NetworkNodeType.GW are
+        consistent w.r.t. the input data.
+        &#34;&#34;&#34;
+        input_path: Path = Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;)
+        input_data: list[NetworkNode] = parse_json(input_path)[&#34;network_nodes&#34;]
+        expected_gateways: list[NetworkNode] = list(filter(
+            lambda network_node: network_node.node_type == &#34;GW&#34;,
+            input_data))
+        net = Network(input_path)
+        zipped_gateways = zip(net.gateways, expected_gateways)
+        for (g1, g2) in zipped_gateways:
+            self.assertEqual(g1.id, g2.id)
+            self.assertEqual(g1.name, g2.name)
+            self.assertEqual(g1.node_type, g2.node_type)
+            self.assertEqual(g1.position, g2.position)
+
+    def test_switches(self):
+        &#34;&#34;&#34;Test that the NetworkNodes of type NetworkNodeType.SW are
+        consistent w.r.t. the input data.
+        &#34;&#34;&#34;
+        input_path: Path = Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;)
+        input_data: list[NetworkNode] = parse_json(input_path)[&#34;network_nodes&#34;]
+        expected_switches: list[NetworkNode] = list(filter(
+            lambda network_node: network_node.node_type == &#34;SW&#34;,
+            input_data))
+        net = Network(input_path)
+        zipped_switches = zip(net.switches, expected_switches)
+        for (s1, s2) in zipped_switches:
+            self.assertEqual(s1.id, s2.id)
+            self.assertEqual(s1.name, s2.name)
+            self.assertEqual(s1.node_type, s2.node_type)
+            self.assertEqual(s1.position, s2.position)
+
+    def test_access_points(self):
+        &#34;&#34;&#34;Test that the NetworkNodes of type NetworkNodeType.AP are
+        consistent w.r.t. the input data.
+        &#34;&#34;&#34;
+        input_path: Path = Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;)
+        input_data: list[NetworkNode] = parse_json(input_path)[&#34;network_nodes&#34;]
+        expected_access_points: list[NetworkNode] = list(filter(
+            lambda network_node: network_node.node_type == &#34;AP&#34;,
+            input_data))
+        net = Network(input_path)
+        zipped_access_points = zip(net.switches, expected_access_points)
+        for (a1, a2) in zipped_access_points:
+            self.assertEqual(a1.id, a2.id)
+            self.assertEqual(a1.name, a2.name)
+            self.assertEqual(a1.node_type, a2.node_type)
+            self.assertEqual(a1.position, a2.position)
 
     def test_network_devices(self):
         &#34;&#34;&#34;Test that the networkDevices are consistent w.r.t. the input
@@ -89,8 +140,8 @@ class test_NetworkDevice(unittest.TestCase):
         input_path: Path = Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;)
         input_data = parse_json(input_path)
         expected_devices : list[NetworkDevice] = input_data[&#34;network_devices&#34;]
-        my_net = Network(input_path)
-        zipped_devices = zip(my_net.network_devices, expected_devices)
+        net = Network(input_path)
+        zipped_devices = zip(net.network_devices, expected_devices)
         for (d1, d2) in zipped_devices:
             self.assertEqual(d1.id, d2.id)
             self.assertEqual(d1.name, d2.name)
@@ -100,23 +151,276 @@ class test_NetworkDevice(unittest.TestCase):
             self.assertEqual(d1.position, d2.position)
             self.assertEqual(d1.is_active, d2.is_active)
 
+    def test_uavs(self):
+        &#34;&#34;&#34;Test that the NetworkDevices of type NetworkDeviceType.UAV
+        are consistent w.r.t. the input data.
+        &#34;&#34;&#34;
+        input_path: Path = Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;)
+        input_data: list[NetworkDevice] = \
+            parse_json(input_path)[&#34;network_devices&#34;]
+        expected_uavs: list[NetworkDevice] = list(filter(
+            lambda network_device: network_device.device_type == &#34;UAV&#34;,
+            input_data))
+        net = Network(input_path)
+        zipped_uavs = zip(net.uavs, expected_uavs)
+        for (u1, u2) in zipped_uavs:
+            self.assertEqual(u1.id, u2.id)
+            self.assertEqual(u1.name, u2.name)
+            self.assertEqual(u1.device_type, u2.device_type)
+            self.assertEqual(u1.throughput_req, u2.throughput_req)
+            self.assertEqual(u1.delay_req, u2.delay_req)
+            self.assertEqual(u1.position, u2.position)
+            self.assertEqual(u1.is_active, u2.is_active)
+
+    def test_cams(self):
+        &#34;&#34;&#34;Test that the NetworkDevices of type NetworkDeviceType.CAM
+        are consistent w.r.t. the input data.
+        &#34;&#34;&#34;
+        input_path: Path = Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;)
+        input_data: list[NetworkDevice] = \
+            parse_json(input_path)[&#34;network_devices&#34;]
+        expected_cams: list[NetworkDevice] = list(filter(
+            lambda network_device: network_device.device_type == &#34;CAM&#34;,
+            input_data))
+        net = Network(input_path)
+        zipped_cams = zip(net.cams, expected_cams)
+        for (c1, c2) in zipped_cams:
+            self.assertEqual(c1.id, c2.id)
+            self.assertEqual(c1.name, c2.name)
+            self.assertEqual(c1.device_type, c2.device_type)
+            self.assertEqual(c1.throughput_req, c2.throughput_req)
+            self.assertEqual(c1.delay_req, c2.delay_req)
+            self.assertEqual(c1.position, c2.position)
+            self.assertEqual(c1.is_active, c2.is_active)
+
     def test_network_links(self):
         &#34;&#34;&#34;Test that the NetworkLinks are consistent w.r.t. the input
         data.
         &#34;&#34;&#34;
         input_path: Path = Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;)
         input_data = parse_json(input_path)
-        expected_links : list[NetworkLink] = input_data[&#34;network_links&#34;]
-        print(expected_links)
-        my_net = Network(input_path)
-        zipped_links = zip(my_net.network_links, expected_links)
+        expected_links = input_data[&#34;network_links&#34;]
+        expected_links: list[NetworkLink] = [l[2] for l in expected_links]
+        net = Network(input_path)
+        zipped_links = zip(net.network_links, expected_links)
         for (l1, l2) in zipped_links:
             self.assertEqual(l1.id, l2.id)
             self.assertEqual(l1.name, l2.name)
             self.assertEqual(l1.max_throughput, l2.max_throughput)
             self.assertEqual(l1.available_throughput, l2.available_throughput)
             self.assertEqual(l1.routed_flows, l2.routed_flows)
-            self.assertEqual(l1.delay, l2.delay)</code></pre>
+            self.assertEqual(l1.delay, l2.delay)
+
+    def test_shortest_path_to_gw(self):
+        &#34;&#34;&#34;Test that the expected shortest paths from the testing
+        scenario are returned in different situations.
+        &#34;&#34;&#34;
+        net: Network = Network(Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;))
+
+        uav0: NetworkDevice = None
+        for uav in net.uavs:
+            if (uav.name == &#34;uav_00&#34;):
+                uav0 = uav
+                break
+        gateway: NetworkNode = None
+        for gw in net.gateways:
+            if (gw.name == &#34;gateway&#34;):
+                gateway = gw
+                break
+        shortest_path = net.shortest_path_to_gw(network_device=uav0,
+                                                gateway=gateway)
+
+        expected_links: list[NetworkLink] = []
+
+        ap0: NetworkNode = list(filter(lambda ap: ap.name == &#34;ap_00&#34;,
+                                  net.access_points))[0]
+        expected_links.append(net[uav0][ap0][&#34;data&#34;])
+        expected_links.append(net[ap0][uav0][&#34;data&#34;])
+        switch_01: NetworkNode = list(filter(lambda ap: ap.name == &#34;switch_01&#34;,
+                                  net.switches))[0]
+        expected_links.append(net[ap0][switch_01][&#34;data&#34;])
+        expected_links.append(net[switch_01][ap0][&#34;data&#34;])
+        switch_04: NetworkNode = list(filter(lambda ap: ap.name == &#34;switch_04&#34;,
+                                  net.switches))[0]
+        expected_links.append(net[switch_01][switch_04][&#34;data&#34;])
+        expected_links.append(net[switch_04][switch_01][&#34;data&#34;])
+        expected_links.append(net[switch_04][gateway][&#34;data&#34;])
+        expected_links.append(net[gateway][switch_04][&#34;data&#34;])
+        zipped_links = zip(shortest_path, expected_links)
+        for (l1, l2) in zipped_links:
+            self.assertEqual(l1, l2)
+
+    def test_assign_path_to_device(self):
+        &#34;&#34;&#34;Test that, given a path and a NetworkDevice, the resources
+        that the NetworkDevice request are allocated in all the
+        NetworkLinks that make up the path.
+        &#34;&#34;&#34;
+        net: Network = Network(Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;))
+
+        uav0: NetworkDevice = None
+        for uav in net.uavs:
+            if (uav.name == &#34;uav_00&#34;):
+                uav0 = uav
+                break
+        gateway: NetworkNode = None
+        for gw in net.gateways:
+            if (gw.name == &#34;gateway&#34;):
+                gateway = gw
+                break
+        ap0: NetworkNode = list(filter(lambda ap: ap.name == &#34;ap_00&#34;,
+                                  net.access_points))[0]
+        switch_01: NetworkNode = list(filter(lambda ap: ap.name == &#34;switch_01&#34;,
+                                  net.switches))[0]
+        switch_04: NetworkNode = list(filter(lambda ap: ap.name == &#34;switch_04&#34;,
+                                  net.switches))[0]
+        path_of_uav0: list[NetworkLink] = []
+        path_of_uav0.append(net[uav0][ap0][&#34;data&#34;])
+        path_of_uav0.append(net[ap0][uav0][&#34;data&#34;])
+        path_of_uav0.append(net[ap0][switch_01][&#34;data&#34;])
+        path_of_uav0.append(net[switch_01][ap0][&#34;data&#34;])
+        path_of_uav0.append(net[switch_01][switch_04][&#34;data&#34;])
+        path_of_uav0.append(net[switch_04][switch_01][&#34;data&#34;])
+        path_of_uav0.append(net[switch_04][gateway][&#34;data&#34;])
+        path_of_uav0.append(net[gateway][switch_04][&#34;data&#34;])
+
+        net.assign_path_to_device(device=uav0, path=path_of_uav0)
+        for l in path_of_uav0:
+            expected_available_throughput: float =\
+                l.max_throughput - uav0.throughput_req
+            self.assertEqual(l.available_throughput,
+                             expected_available_throughput)
+            self.assertTrue(uav0 in l.routed_flows)
+
+    def test_get_path_device(self):
+        &#34;&#34;&#34;Test that given a NetworkDevice, the path were its resources
+        are allocated is returned. The order of NetworksLink is irrelevant.
+        &#34;&#34;&#34;
+        net: Network = Network(Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;))
+        uav0: NetworkDevice = None
+        for uav in net.uavs:
+            if (uav.name == &#34;uav_00&#34;):
+                uav0 = uav
+                break
+        gateway: NetworkNode = None
+        for gw in net.gateways:
+            if (gw.name == &#34;gateway&#34;):
+                gateway = gw
+                break
+        ap0: NetworkNode = list(filter(lambda ap: ap.name == &#34;ap_00&#34;,
+                                  net.access_points))[0]
+        switch_01: NetworkNode = list(filter(lambda ap: ap.name == &#34;switch_01&#34;,
+                                  net.switches))[0]
+        switch_04: NetworkNode = list(filter(lambda ap: ap.name == &#34;switch_04&#34;,
+                                  net.switches))[0]
+        expected_path_of_uav0: list[NetworkLink] = []
+        expected_path_of_uav0.append(net[uav0][ap0][&#34;data&#34;])
+        expected_path_of_uav0.append(net[ap0][uav0][&#34;data&#34;])
+        expected_path_of_uav0.append(net[ap0][switch_01][&#34;data&#34;])
+        expected_path_of_uav0.append(net[switch_01][ap0][&#34;data&#34;])
+        expected_path_of_uav0.append(net[switch_01][switch_04][&#34;data&#34;])
+        expected_path_of_uav0.append(net[switch_04][switch_01][&#34;data&#34;])
+        expected_path_of_uav0.append(net[switch_04][gateway][&#34;data&#34;])
+        expected_path_of_uav0.append(net[gateway][switch_04][&#34;data&#34;])
+        net.assign_path_to_device(device=uav0, path=expected_path_of_uav0)
+        actual_uav0_path  = net.get_path_device(uav0)
+        self.assertEqual(len(expected_path_of_uav0), len(actual_uav0_path))
+        for l in actual_uav0_path:
+            self.assertTrue(l in expected_path_of_uav0)
+
+    def test_free_path_device(self):
+        &#34;&#34;&#34;Test that given a NetworkDevice, the allocation of its
+        requested resources are removed from all the NetworkLinks of the
+        Network.
+        &#34;&#34;&#34;
+        net: Network = Network(Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;))
+        uav0: NetworkDevice = None
+        for uav in net.uavs:
+            if (uav.name == &#34;uav_00&#34;):
+                uav0 = uav
+                break
+        gateway: NetworkNode = None
+        for gw in net.gateways:
+            if (gw.name == &#34;gateway&#34;):
+                gateway = gw
+                break
+        ap0: NetworkNode = list(filter(lambda ap: ap.name == &#34;ap_00&#34;,
+                                  net.access_points))[0]
+        switch_01: NetworkNode = list(filter(lambda ap: ap.name == &#34;switch_01&#34;,
+                                  net.switches))[0]
+        switch_04: NetworkNode = list(filter(lambda ap: ap.name == &#34;switch_04&#34;,
+                                  net.switches))[0]
+        path_of_uav0: list[NetworkLink] = []
+        path_of_uav0.append(net[uav0][ap0][&#34;data&#34;])
+        path_of_uav0.append(net[ap0][uav0][&#34;data&#34;])
+        path_of_uav0.append(net[ap0][switch_01][&#34;data&#34;])
+        path_of_uav0.append(net[switch_01][ap0][&#34;data&#34;])
+        path_of_uav0.append(net[switch_01][switch_04][&#34;data&#34;])
+        path_of_uav0.append(net[switch_04][switch_01][&#34;data&#34;])
+        path_of_uav0.append(net[switch_04][gateway][&#34;data&#34;])
+        path_of_uav0.append(net[gateway][switch_04][&#34;data&#34;])
+        net.assign_path_to_device(device=uav0, path=path_of_uav0)
+
+        net.free_path_device(uav0, path_of_uav0)
+
+        for l in path_of_uav0:
+            self.assertEqual(l.available_throughput, l.max_throughput)
+            self.assertEqual(len(l.routed_flows), 0)
+
+    def test_get_next_link(self):
+        &#34;&#34;&#34;Test that given an ExtendedNetworkLink, the list of
+        ExtendedNewtorkLinks that are returned lead to the gw of the
+        network.
+        &#34;&#34;&#34;
+        net: Network = Network(Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;))
+        ap0: NetworkNode = list(filter(lambda ap: ap.name == &#34;ap_00&#34;,
+                                  net.access_points))[0]
+        switch_01: NetworkNode = list(filter(lambda ap: ap.name == &#34;switch_01&#34;,
+                                  net.switches))[0]
+        switch_02: NetworkNode = list(filter(lambda ap: ap.name == &#34;switch_02&#34;,
+                                  net.switches))[0]
+        switch_04: NetworkNode = list(filter(lambda ap: ap.name == &#34;switch_04&#34;,
+                                  net.switches))[0]
+        current_l: NetworkLink = net[ap0][switch_01]
+        l_01_02: NetworkLink = net[switch_01][switch_02]
+        l_01_04: NetworkLink = net[switch_01][switch_04]
+
+        next_links: list[ExtendedNetworkLink] = net.get_next_link((ap0,
+                                                                   switch_01,
+                                                                   current_l))
+        self.assertEqual(len(next_links), 2)
+        self.assertTrue((switch_01, switch_02, l_01_02) in next_links)
+        self.assertTrue((switch_01, switch_04, l_01_04) in next_links)
+
+    def test_generate_uav_event(self):
+        &#34;&#34;&#34;Test that when an event for a NetworkDevice of type
+        NetworkDeviceType.UAV is generated, the NetworkLinks are updated
+        consistenly and that the NetworkDevice is set to active.
+        &#34;&#34;&#34;
+        net: Network = Network(Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;))
+        seed: int = 0
+        uav = net.generate_uav_event(seed=seed)
+        self.assertTrue(uav.is_active)
+        self.assertEqual(len(list(net.in_edges(uav))), 1)
+        self.assertEqual(len(list(net.out_edges(uav))), 1)
+        self.assertEqual(list(net.out_edges(uav))[0][1],
+                         list(net.in_edges(uav))[0][0])
+
+
+    def test_generate_cam_event(self):
+        &#34;&#34;&#34;Test that when that events for NetworkDevices of type
+        NetworkDeviceType.CAM only inactive cameras are taken into
+        account and that the chosen is set to active.
+        &#34;&#34;&#34;
+        net: Network = Network(Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;))
+        seed: int = 0
+        n_cams: int = len(net.cams)
+        for i in range(n_cams):
+            n_inactive_cameras: int = len(list(filter(
+                lambda cam: not cam.is_active,
+                net.cams)))
+            self.assertEqual(n_inactive_cameras, n_cams - i)
+            cam = net.generate_cam_event(seed=seed)
+            self.assertTrue(cam.is_active)</code></pre>
 </details>
 </section>
 <section>
@@ -128,8 +432,8 @@ class test_NetworkDevice(unittest.TestCase):
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="uav-mobility-app.tests.entities.test_Network.test_NetworkDevice"><code class="flex name class">
-<span>class <span class="ident">test_NetworkDevice</span></span>
+<dt id="uav-mobility-app.tests.entities.test_Network.test_Network"><code class="flex name class">
+<span>class <span class="ident">test_Network</span></span>
 <span>(</span><span>methodName='runTest')</span>
 </code></dt>
 <dd>
@@ -165,7 +469,7 @@ not have a method with the specified name.</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class test_NetworkDevice(unittest.TestCase):
+<pre><code class="python">class test_Network(unittest.TestCase):
 
 
     def test_initialization(self):
@@ -185,13 +489,13 @@ not have a method with the specified name.</p></div>
             input_data[&#34;network_nodes&#34;])))
         n_network_devices: int = len(input_data[&#34;network_devices&#34;])
         n_network_links: int = len(input_data[&#34;network_links&#34;])
-        my_net = Network(input_path)
-        self.assertEqual(len(my_net.nodes),
+        net = Network(input_path)
+        self.assertEqual(len(net.nodes),
                          n_network_devices + n_network_nodes)
-        self.assertEqual(len(my_net.gateways), n_gws)
-        self.assertEqual(len(my_net.switches), n_sws)
-        self.assertEqual(len(my_net.access_points), n_aps)
-        self.assertEqual(len(my_net.edges),
+        self.assertEqual(len(net.gateways), n_gws)
+        self.assertEqual(len(net.switches), n_sws)
+        self.assertEqual(len(net.access_points), n_aps)
+        self.assertEqual(len(net.edges),
                          n_network_links)
 
     def test_network_nodes(self):
@@ -201,13 +505,64 @@ not have a method with the specified name.</p></div>
         input_path: Path = Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;)
         input_data = parse_json(input_path)
         expected_nodes: list[NetworkNode] = input_data[&#34;network_nodes&#34;]
-        my_net = Network(input_path)
-        zipped_nodes = zip(my_net.network_nodes, expected_nodes)
+        net = Network(input_path)
+        zipped_nodes = zip(net.network_nodes, expected_nodes)
         for (n1, n2) in zipped_nodes:
             self.assertEqual(n1.id, n2.id)
             self.assertEqual(n1.name, n2.name)
             self.assertEqual(n1.node_type, n2.node_type)
             self.assertEqual(n1.position, n2.position)
+
+    def test_gateways(self):
+        &#34;&#34;&#34;Test that the NetworkNodes of type NetworkNodeType.GW are
+        consistent w.r.t. the input data.
+        &#34;&#34;&#34;
+        input_path: Path = Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;)
+        input_data: list[NetworkNode] = parse_json(input_path)[&#34;network_nodes&#34;]
+        expected_gateways: list[NetworkNode] = list(filter(
+            lambda network_node: network_node.node_type == &#34;GW&#34;,
+            input_data))
+        net = Network(input_path)
+        zipped_gateways = zip(net.gateways, expected_gateways)
+        for (g1, g2) in zipped_gateways:
+            self.assertEqual(g1.id, g2.id)
+            self.assertEqual(g1.name, g2.name)
+            self.assertEqual(g1.node_type, g2.node_type)
+            self.assertEqual(g1.position, g2.position)
+
+    def test_switches(self):
+        &#34;&#34;&#34;Test that the NetworkNodes of type NetworkNodeType.SW are
+        consistent w.r.t. the input data.
+        &#34;&#34;&#34;
+        input_path: Path = Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;)
+        input_data: list[NetworkNode] = parse_json(input_path)[&#34;network_nodes&#34;]
+        expected_switches: list[NetworkNode] = list(filter(
+            lambda network_node: network_node.node_type == &#34;SW&#34;,
+            input_data))
+        net = Network(input_path)
+        zipped_switches = zip(net.switches, expected_switches)
+        for (s1, s2) in zipped_switches:
+            self.assertEqual(s1.id, s2.id)
+            self.assertEqual(s1.name, s2.name)
+            self.assertEqual(s1.node_type, s2.node_type)
+            self.assertEqual(s1.position, s2.position)
+
+    def test_access_points(self):
+        &#34;&#34;&#34;Test that the NetworkNodes of type NetworkNodeType.AP are
+        consistent w.r.t. the input data.
+        &#34;&#34;&#34;
+        input_path: Path = Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;)
+        input_data: list[NetworkNode] = parse_json(input_path)[&#34;network_nodes&#34;]
+        expected_access_points: list[NetworkNode] = list(filter(
+            lambda network_node: network_node.node_type == &#34;AP&#34;,
+            input_data))
+        net = Network(input_path)
+        zipped_access_points = zip(net.switches, expected_access_points)
+        for (a1, a2) in zipped_access_points:
+            self.assertEqual(a1.id, a2.id)
+            self.assertEqual(a1.name, a2.name)
+            self.assertEqual(a1.node_type, a2.node_type)
+            self.assertEqual(a1.position, a2.position)
 
     def test_network_devices(self):
         &#34;&#34;&#34;Test that the networkDevices are consistent w.r.t. the input
@@ -216,8 +571,8 @@ not have a method with the specified name.</p></div>
         input_path: Path = Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;)
         input_data = parse_json(input_path)
         expected_devices : list[NetworkDevice] = input_data[&#34;network_devices&#34;]
-        my_net = Network(input_path)
-        zipped_devices = zip(my_net.network_devices, expected_devices)
+        net = Network(input_path)
+        zipped_devices = zip(net.network_devices, expected_devices)
         for (d1, d2) in zipped_devices:
             self.assertEqual(d1.id, d2.id)
             self.assertEqual(d1.name, d2.name)
@@ -227,23 +582,276 @@ not have a method with the specified name.</p></div>
             self.assertEqual(d1.position, d2.position)
             self.assertEqual(d1.is_active, d2.is_active)
 
+    def test_uavs(self):
+        &#34;&#34;&#34;Test that the NetworkDevices of type NetworkDeviceType.UAV
+        are consistent w.r.t. the input data.
+        &#34;&#34;&#34;
+        input_path: Path = Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;)
+        input_data: list[NetworkDevice] = \
+            parse_json(input_path)[&#34;network_devices&#34;]
+        expected_uavs: list[NetworkDevice] = list(filter(
+            lambda network_device: network_device.device_type == &#34;UAV&#34;,
+            input_data))
+        net = Network(input_path)
+        zipped_uavs = zip(net.uavs, expected_uavs)
+        for (u1, u2) in zipped_uavs:
+            self.assertEqual(u1.id, u2.id)
+            self.assertEqual(u1.name, u2.name)
+            self.assertEqual(u1.device_type, u2.device_type)
+            self.assertEqual(u1.throughput_req, u2.throughput_req)
+            self.assertEqual(u1.delay_req, u2.delay_req)
+            self.assertEqual(u1.position, u2.position)
+            self.assertEqual(u1.is_active, u2.is_active)
+
+    def test_cams(self):
+        &#34;&#34;&#34;Test that the NetworkDevices of type NetworkDeviceType.CAM
+        are consistent w.r.t. the input data.
+        &#34;&#34;&#34;
+        input_path: Path = Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;)
+        input_data: list[NetworkDevice] = \
+            parse_json(input_path)[&#34;network_devices&#34;]
+        expected_cams: list[NetworkDevice] = list(filter(
+            lambda network_device: network_device.device_type == &#34;CAM&#34;,
+            input_data))
+        net = Network(input_path)
+        zipped_cams = zip(net.cams, expected_cams)
+        for (c1, c2) in zipped_cams:
+            self.assertEqual(c1.id, c2.id)
+            self.assertEqual(c1.name, c2.name)
+            self.assertEqual(c1.device_type, c2.device_type)
+            self.assertEqual(c1.throughput_req, c2.throughput_req)
+            self.assertEqual(c1.delay_req, c2.delay_req)
+            self.assertEqual(c1.position, c2.position)
+            self.assertEqual(c1.is_active, c2.is_active)
+
     def test_network_links(self):
         &#34;&#34;&#34;Test that the NetworkLinks are consistent w.r.t. the input
         data.
         &#34;&#34;&#34;
         input_path: Path = Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;)
         input_data = parse_json(input_path)
-        expected_links : list[NetworkLink] = input_data[&#34;network_links&#34;]
-        print(expected_links)
-        my_net = Network(input_path)
-        zipped_links = zip(my_net.network_links, expected_links)
+        expected_links = input_data[&#34;network_links&#34;]
+        expected_links: list[NetworkLink] = [l[2] for l in expected_links]
+        net = Network(input_path)
+        zipped_links = zip(net.network_links, expected_links)
         for (l1, l2) in zipped_links:
             self.assertEqual(l1.id, l2.id)
             self.assertEqual(l1.name, l2.name)
             self.assertEqual(l1.max_throughput, l2.max_throughput)
             self.assertEqual(l1.available_throughput, l2.available_throughput)
             self.assertEqual(l1.routed_flows, l2.routed_flows)
-            self.assertEqual(l1.delay, l2.delay)</code></pre>
+            self.assertEqual(l1.delay, l2.delay)
+
+    def test_shortest_path_to_gw(self):
+        &#34;&#34;&#34;Test that the expected shortest paths from the testing
+        scenario are returned in different situations.
+        &#34;&#34;&#34;
+        net: Network = Network(Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;))
+
+        uav0: NetworkDevice = None
+        for uav in net.uavs:
+            if (uav.name == &#34;uav_00&#34;):
+                uav0 = uav
+                break
+        gateway: NetworkNode = None
+        for gw in net.gateways:
+            if (gw.name == &#34;gateway&#34;):
+                gateway = gw
+                break
+        shortest_path = net.shortest_path_to_gw(network_device=uav0,
+                                                gateway=gateway)
+
+        expected_links: list[NetworkLink] = []
+
+        ap0: NetworkNode = list(filter(lambda ap: ap.name == &#34;ap_00&#34;,
+                                  net.access_points))[0]
+        expected_links.append(net[uav0][ap0][&#34;data&#34;])
+        expected_links.append(net[ap0][uav0][&#34;data&#34;])
+        switch_01: NetworkNode = list(filter(lambda ap: ap.name == &#34;switch_01&#34;,
+                                  net.switches))[0]
+        expected_links.append(net[ap0][switch_01][&#34;data&#34;])
+        expected_links.append(net[switch_01][ap0][&#34;data&#34;])
+        switch_04: NetworkNode = list(filter(lambda ap: ap.name == &#34;switch_04&#34;,
+                                  net.switches))[0]
+        expected_links.append(net[switch_01][switch_04][&#34;data&#34;])
+        expected_links.append(net[switch_04][switch_01][&#34;data&#34;])
+        expected_links.append(net[switch_04][gateway][&#34;data&#34;])
+        expected_links.append(net[gateway][switch_04][&#34;data&#34;])
+        zipped_links = zip(shortest_path, expected_links)
+        for (l1, l2) in zipped_links:
+            self.assertEqual(l1, l2)
+
+    def test_assign_path_to_device(self):
+        &#34;&#34;&#34;Test that, given a path and a NetworkDevice, the resources
+        that the NetworkDevice request are allocated in all the
+        NetworkLinks that make up the path.
+        &#34;&#34;&#34;
+        net: Network = Network(Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;))
+
+        uav0: NetworkDevice = None
+        for uav in net.uavs:
+            if (uav.name == &#34;uav_00&#34;):
+                uav0 = uav
+                break
+        gateway: NetworkNode = None
+        for gw in net.gateways:
+            if (gw.name == &#34;gateway&#34;):
+                gateway = gw
+                break
+        ap0: NetworkNode = list(filter(lambda ap: ap.name == &#34;ap_00&#34;,
+                                  net.access_points))[0]
+        switch_01: NetworkNode = list(filter(lambda ap: ap.name == &#34;switch_01&#34;,
+                                  net.switches))[0]
+        switch_04: NetworkNode = list(filter(lambda ap: ap.name == &#34;switch_04&#34;,
+                                  net.switches))[0]
+        path_of_uav0: list[NetworkLink] = []
+        path_of_uav0.append(net[uav0][ap0][&#34;data&#34;])
+        path_of_uav0.append(net[ap0][uav0][&#34;data&#34;])
+        path_of_uav0.append(net[ap0][switch_01][&#34;data&#34;])
+        path_of_uav0.append(net[switch_01][ap0][&#34;data&#34;])
+        path_of_uav0.append(net[switch_01][switch_04][&#34;data&#34;])
+        path_of_uav0.append(net[switch_04][switch_01][&#34;data&#34;])
+        path_of_uav0.append(net[switch_04][gateway][&#34;data&#34;])
+        path_of_uav0.append(net[gateway][switch_04][&#34;data&#34;])
+
+        net.assign_path_to_device(device=uav0, path=path_of_uav0)
+        for l in path_of_uav0:
+            expected_available_throughput: float =\
+                l.max_throughput - uav0.throughput_req
+            self.assertEqual(l.available_throughput,
+                             expected_available_throughput)
+            self.assertTrue(uav0 in l.routed_flows)
+
+    def test_get_path_device(self):
+        &#34;&#34;&#34;Test that given a NetworkDevice, the path were its resources
+        are allocated is returned. The order of NetworksLink is irrelevant.
+        &#34;&#34;&#34;
+        net: Network = Network(Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;))
+        uav0: NetworkDevice = None
+        for uav in net.uavs:
+            if (uav.name == &#34;uav_00&#34;):
+                uav0 = uav
+                break
+        gateway: NetworkNode = None
+        for gw in net.gateways:
+            if (gw.name == &#34;gateway&#34;):
+                gateway = gw
+                break
+        ap0: NetworkNode = list(filter(lambda ap: ap.name == &#34;ap_00&#34;,
+                                  net.access_points))[0]
+        switch_01: NetworkNode = list(filter(lambda ap: ap.name == &#34;switch_01&#34;,
+                                  net.switches))[0]
+        switch_04: NetworkNode = list(filter(lambda ap: ap.name == &#34;switch_04&#34;,
+                                  net.switches))[0]
+        expected_path_of_uav0: list[NetworkLink] = []
+        expected_path_of_uav0.append(net[uav0][ap0][&#34;data&#34;])
+        expected_path_of_uav0.append(net[ap0][uav0][&#34;data&#34;])
+        expected_path_of_uav0.append(net[ap0][switch_01][&#34;data&#34;])
+        expected_path_of_uav0.append(net[switch_01][ap0][&#34;data&#34;])
+        expected_path_of_uav0.append(net[switch_01][switch_04][&#34;data&#34;])
+        expected_path_of_uav0.append(net[switch_04][switch_01][&#34;data&#34;])
+        expected_path_of_uav0.append(net[switch_04][gateway][&#34;data&#34;])
+        expected_path_of_uav0.append(net[gateway][switch_04][&#34;data&#34;])
+        net.assign_path_to_device(device=uav0, path=expected_path_of_uav0)
+        actual_uav0_path  = net.get_path_device(uav0)
+        self.assertEqual(len(expected_path_of_uav0), len(actual_uav0_path))
+        for l in actual_uav0_path:
+            self.assertTrue(l in expected_path_of_uav0)
+
+    def test_free_path_device(self):
+        &#34;&#34;&#34;Test that given a NetworkDevice, the allocation of its
+        requested resources are removed from all the NetworkLinks of the
+        Network.
+        &#34;&#34;&#34;
+        net: Network = Network(Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;))
+        uav0: NetworkDevice = None
+        for uav in net.uavs:
+            if (uav.name == &#34;uav_00&#34;):
+                uav0 = uav
+                break
+        gateway: NetworkNode = None
+        for gw in net.gateways:
+            if (gw.name == &#34;gateway&#34;):
+                gateway = gw
+                break
+        ap0: NetworkNode = list(filter(lambda ap: ap.name == &#34;ap_00&#34;,
+                                  net.access_points))[0]
+        switch_01: NetworkNode = list(filter(lambda ap: ap.name == &#34;switch_01&#34;,
+                                  net.switches))[0]
+        switch_04: NetworkNode = list(filter(lambda ap: ap.name == &#34;switch_04&#34;,
+                                  net.switches))[0]
+        path_of_uav0: list[NetworkLink] = []
+        path_of_uav0.append(net[uav0][ap0][&#34;data&#34;])
+        path_of_uav0.append(net[ap0][uav0][&#34;data&#34;])
+        path_of_uav0.append(net[ap0][switch_01][&#34;data&#34;])
+        path_of_uav0.append(net[switch_01][ap0][&#34;data&#34;])
+        path_of_uav0.append(net[switch_01][switch_04][&#34;data&#34;])
+        path_of_uav0.append(net[switch_04][switch_01][&#34;data&#34;])
+        path_of_uav0.append(net[switch_04][gateway][&#34;data&#34;])
+        path_of_uav0.append(net[gateway][switch_04][&#34;data&#34;])
+        net.assign_path_to_device(device=uav0, path=path_of_uav0)
+
+        net.free_path_device(uav0, path_of_uav0)
+
+        for l in path_of_uav0:
+            self.assertEqual(l.available_throughput, l.max_throughput)
+            self.assertEqual(len(l.routed_flows), 0)
+
+    def test_get_next_link(self):
+        &#34;&#34;&#34;Test that given an ExtendedNetworkLink, the list of
+        ExtendedNewtorkLinks that are returned lead to the gw of the
+        network.
+        &#34;&#34;&#34;
+        net: Network = Network(Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;))
+        ap0: NetworkNode = list(filter(lambda ap: ap.name == &#34;ap_00&#34;,
+                                  net.access_points))[0]
+        switch_01: NetworkNode = list(filter(lambda ap: ap.name == &#34;switch_01&#34;,
+                                  net.switches))[0]
+        switch_02: NetworkNode = list(filter(lambda ap: ap.name == &#34;switch_02&#34;,
+                                  net.switches))[0]
+        switch_04: NetworkNode = list(filter(lambda ap: ap.name == &#34;switch_04&#34;,
+                                  net.switches))[0]
+        current_l: NetworkLink = net[ap0][switch_01]
+        l_01_02: NetworkLink = net[switch_01][switch_02]
+        l_01_04: NetworkLink = net[switch_01][switch_04]
+
+        next_links: list[ExtendedNetworkLink] = net.get_next_link((ap0,
+                                                                   switch_01,
+                                                                   current_l))
+        self.assertEqual(len(next_links), 2)
+        self.assertTrue((switch_01, switch_02, l_01_02) in next_links)
+        self.assertTrue((switch_01, switch_04, l_01_04) in next_links)
+
+    def test_generate_uav_event(self):
+        &#34;&#34;&#34;Test that when an event for a NetworkDevice of type
+        NetworkDeviceType.UAV is generated, the NetworkLinks are updated
+        consistenly and that the NetworkDevice is set to active.
+        &#34;&#34;&#34;
+        net: Network = Network(Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;))
+        seed: int = 0
+        uav = net.generate_uav_event(seed=seed)
+        self.assertTrue(uav.is_active)
+        self.assertEqual(len(list(net.in_edges(uav))), 1)
+        self.assertEqual(len(list(net.out_edges(uav))), 1)
+        self.assertEqual(list(net.out_edges(uav))[0][1],
+                         list(net.in_edges(uav))[0][0])
+
+
+    def test_generate_cam_event(self):
+        &#34;&#34;&#34;Test that when that events for NetworkDevices of type
+        NetworkDeviceType.CAM only inactive cameras are taken into
+        account and that the chosen is set to active.
+        &#34;&#34;&#34;
+        net: Network = Network(Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;))
+        seed: int = 0
+        n_cams: int = len(net.cams)
+        for i in range(n_cams):
+            n_inactive_cameras: int = len(list(filter(
+                lambda cam: not cam.is_active,
+                net.cams)))
+            self.assertEqual(n_inactive_cameras, n_cams - i)
+            cam = net.generate_cam_event(seed=seed)
+            self.assertTrue(cam.is_active)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -251,7 +859,337 @@ not have a method with the specified name.</p></div>
 </ul>
 <h3>Methods</h3>
 <dl>
-<dt id="uav-mobility-app.tests.entities.test_Network.test_NetworkDevice.test_initialization"><code class="name flex">
+<dt id="uav-mobility-app.tests.entities.test_Network.test_Network.test_access_points"><code class="name flex">
+<span>def <span class="ident">test_access_points</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Test that the NetworkNodes of type NetworkNodeType.AP are
+consistent w.r.t. the input data.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_access_points(self):
+    &#34;&#34;&#34;Test that the NetworkNodes of type NetworkNodeType.AP are
+    consistent w.r.t. the input data.
+    &#34;&#34;&#34;
+    input_path: Path = Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;)
+    input_data: list[NetworkNode] = parse_json(input_path)[&#34;network_nodes&#34;]
+    expected_access_points: list[NetworkNode] = list(filter(
+        lambda network_node: network_node.node_type == &#34;AP&#34;,
+        input_data))
+    net = Network(input_path)
+    zipped_access_points = zip(net.switches, expected_access_points)
+    for (a1, a2) in zipped_access_points:
+        self.assertEqual(a1.id, a2.id)
+        self.assertEqual(a1.name, a2.name)
+        self.assertEqual(a1.node_type, a2.node_type)
+        self.assertEqual(a1.position, a2.position)</code></pre>
+</details>
+</dd>
+<dt id="uav-mobility-app.tests.entities.test_Network.test_Network.test_assign_path_to_device"><code class="name flex">
+<span>def <span class="ident">test_assign_path_to_device</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Test that, given a path and a NetworkDevice, the resources
+that the NetworkDevice request are allocated in all the
+NetworkLinks that make up the path.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_assign_path_to_device(self):
+    &#34;&#34;&#34;Test that, given a path and a NetworkDevice, the resources
+    that the NetworkDevice request are allocated in all the
+    NetworkLinks that make up the path.
+    &#34;&#34;&#34;
+    net: Network = Network(Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;))
+
+    uav0: NetworkDevice = None
+    for uav in net.uavs:
+        if (uav.name == &#34;uav_00&#34;):
+            uav0 = uav
+            break
+    gateway: NetworkNode = None
+    for gw in net.gateways:
+        if (gw.name == &#34;gateway&#34;):
+            gateway = gw
+            break
+    ap0: NetworkNode = list(filter(lambda ap: ap.name == &#34;ap_00&#34;,
+                              net.access_points))[0]
+    switch_01: NetworkNode = list(filter(lambda ap: ap.name == &#34;switch_01&#34;,
+                              net.switches))[0]
+    switch_04: NetworkNode = list(filter(lambda ap: ap.name == &#34;switch_04&#34;,
+                              net.switches))[0]
+    path_of_uav0: list[NetworkLink] = []
+    path_of_uav0.append(net[uav0][ap0][&#34;data&#34;])
+    path_of_uav0.append(net[ap0][uav0][&#34;data&#34;])
+    path_of_uav0.append(net[ap0][switch_01][&#34;data&#34;])
+    path_of_uav0.append(net[switch_01][ap0][&#34;data&#34;])
+    path_of_uav0.append(net[switch_01][switch_04][&#34;data&#34;])
+    path_of_uav0.append(net[switch_04][switch_01][&#34;data&#34;])
+    path_of_uav0.append(net[switch_04][gateway][&#34;data&#34;])
+    path_of_uav0.append(net[gateway][switch_04][&#34;data&#34;])
+
+    net.assign_path_to_device(device=uav0, path=path_of_uav0)
+    for l in path_of_uav0:
+        expected_available_throughput: float =\
+            l.max_throughput - uav0.throughput_req
+        self.assertEqual(l.available_throughput,
+                         expected_available_throughput)
+        self.assertTrue(uav0 in l.routed_flows)</code></pre>
+</details>
+</dd>
+<dt id="uav-mobility-app.tests.entities.test_Network.test_Network.test_cams"><code class="name flex">
+<span>def <span class="ident">test_cams</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Test that the NetworkDevices of type NetworkDeviceType.CAM
+are consistent w.r.t. the input data.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_cams(self):
+    &#34;&#34;&#34;Test that the NetworkDevices of type NetworkDeviceType.CAM
+    are consistent w.r.t. the input data.
+    &#34;&#34;&#34;
+    input_path: Path = Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;)
+    input_data: list[NetworkDevice] = \
+        parse_json(input_path)[&#34;network_devices&#34;]
+    expected_cams: list[NetworkDevice] = list(filter(
+        lambda network_device: network_device.device_type == &#34;CAM&#34;,
+        input_data))
+    net = Network(input_path)
+    zipped_cams = zip(net.cams, expected_cams)
+    for (c1, c2) in zipped_cams:
+        self.assertEqual(c1.id, c2.id)
+        self.assertEqual(c1.name, c2.name)
+        self.assertEqual(c1.device_type, c2.device_type)
+        self.assertEqual(c1.throughput_req, c2.throughput_req)
+        self.assertEqual(c1.delay_req, c2.delay_req)
+        self.assertEqual(c1.position, c2.position)
+        self.assertEqual(c1.is_active, c2.is_active)</code></pre>
+</details>
+</dd>
+<dt id="uav-mobility-app.tests.entities.test_Network.test_Network.test_free_path_device"><code class="name flex">
+<span>def <span class="ident">test_free_path_device</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Test that given a NetworkDevice, the allocation of its
+requested resources are removed from all the NetworkLinks of the
+Network.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_free_path_device(self):
+    &#34;&#34;&#34;Test that given a NetworkDevice, the allocation of its
+    requested resources are removed from all the NetworkLinks of the
+    Network.
+    &#34;&#34;&#34;
+    net: Network = Network(Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;))
+    uav0: NetworkDevice = None
+    for uav in net.uavs:
+        if (uav.name == &#34;uav_00&#34;):
+            uav0 = uav
+            break
+    gateway: NetworkNode = None
+    for gw in net.gateways:
+        if (gw.name == &#34;gateway&#34;):
+            gateway = gw
+            break
+    ap0: NetworkNode = list(filter(lambda ap: ap.name == &#34;ap_00&#34;,
+                              net.access_points))[0]
+    switch_01: NetworkNode = list(filter(lambda ap: ap.name == &#34;switch_01&#34;,
+                              net.switches))[0]
+    switch_04: NetworkNode = list(filter(lambda ap: ap.name == &#34;switch_04&#34;,
+                              net.switches))[0]
+    path_of_uav0: list[NetworkLink] = []
+    path_of_uav0.append(net[uav0][ap0][&#34;data&#34;])
+    path_of_uav0.append(net[ap0][uav0][&#34;data&#34;])
+    path_of_uav0.append(net[ap0][switch_01][&#34;data&#34;])
+    path_of_uav0.append(net[switch_01][ap0][&#34;data&#34;])
+    path_of_uav0.append(net[switch_01][switch_04][&#34;data&#34;])
+    path_of_uav0.append(net[switch_04][switch_01][&#34;data&#34;])
+    path_of_uav0.append(net[switch_04][gateway][&#34;data&#34;])
+    path_of_uav0.append(net[gateway][switch_04][&#34;data&#34;])
+    net.assign_path_to_device(device=uav0, path=path_of_uav0)
+
+    net.free_path_device(uav0, path_of_uav0)
+
+    for l in path_of_uav0:
+        self.assertEqual(l.available_throughput, l.max_throughput)
+        self.assertEqual(len(l.routed_flows), 0)</code></pre>
+</details>
+</dd>
+<dt id="uav-mobility-app.tests.entities.test_Network.test_Network.test_gateways"><code class="name flex">
+<span>def <span class="ident">test_gateways</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Test that the NetworkNodes of type NetworkNodeType.GW are
+consistent w.r.t. the input data.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_gateways(self):
+    &#34;&#34;&#34;Test that the NetworkNodes of type NetworkNodeType.GW are
+    consistent w.r.t. the input data.
+    &#34;&#34;&#34;
+    input_path: Path = Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;)
+    input_data: list[NetworkNode] = parse_json(input_path)[&#34;network_nodes&#34;]
+    expected_gateways: list[NetworkNode] = list(filter(
+        lambda network_node: network_node.node_type == &#34;GW&#34;,
+        input_data))
+    net = Network(input_path)
+    zipped_gateways = zip(net.gateways, expected_gateways)
+    for (g1, g2) in zipped_gateways:
+        self.assertEqual(g1.id, g2.id)
+        self.assertEqual(g1.name, g2.name)
+        self.assertEqual(g1.node_type, g2.node_type)
+        self.assertEqual(g1.position, g2.position)</code></pre>
+</details>
+</dd>
+<dt id="uav-mobility-app.tests.entities.test_Network.test_Network.test_generate_cam_event"><code class="name flex">
+<span>def <span class="ident">test_generate_cam_event</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Test that when that events for NetworkDevices of type
+NetworkDeviceType.CAM only inactive cameras are taken into
+account and that the chosen is set to active.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_generate_cam_event(self):
+    &#34;&#34;&#34;Test that when that events for NetworkDevices of type
+    NetworkDeviceType.CAM only inactive cameras are taken into
+    account and that the chosen is set to active.
+    &#34;&#34;&#34;
+    net: Network = Network(Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;))
+    seed: int = 0
+    n_cams: int = len(net.cams)
+    for i in range(n_cams):
+        n_inactive_cameras: int = len(list(filter(
+            lambda cam: not cam.is_active,
+            net.cams)))
+        self.assertEqual(n_inactive_cameras, n_cams - i)
+        cam = net.generate_cam_event(seed=seed)
+        self.assertTrue(cam.is_active)</code></pre>
+</details>
+</dd>
+<dt id="uav-mobility-app.tests.entities.test_Network.test_Network.test_generate_uav_event"><code class="name flex">
+<span>def <span class="ident">test_generate_uav_event</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Test that when an event for a NetworkDevice of type
+NetworkDeviceType.UAV is generated, the NetworkLinks are updated
+consistenly and that the NetworkDevice is set to active.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_generate_uav_event(self):
+    &#34;&#34;&#34;Test that when an event for a NetworkDevice of type
+    NetworkDeviceType.UAV is generated, the NetworkLinks are updated
+    consistenly and that the NetworkDevice is set to active.
+    &#34;&#34;&#34;
+    net: Network = Network(Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;))
+    seed: int = 0
+    uav = net.generate_uav_event(seed=seed)
+    self.assertTrue(uav.is_active)
+    self.assertEqual(len(list(net.in_edges(uav))), 1)
+    self.assertEqual(len(list(net.out_edges(uav))), 1)
+    self.assertEqual(list(net.out_edges(uav))[0][1],
+                     list(net.in_edges(uav))[0][0])</code></pre>
+</details>
+</dd>
+<dt id="uav-mobility-app.tests.entities.test_Network.test_Network.test_get_next_link"><code class="name flex">
+<span>def <span class="ident">test_get_next_link</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Test that given an ExtendedNetworkLink, the list of
+ExtendedNewtorkLinks that are returned lead to the gw of the
+network.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_get_next_link(self):
+    &#34;&#34;&#34;Test that given an ExtendedNetworkLink, the list of
+    ExtendedNewtorkLinks that are returned lead to the gw of the
+    network.
+    &#34;&#34;&#34;
+    net: Network = Network(Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;))
+    ap0: NetworkNode = list(filter(lambda ap: ap.name == &#34;ap_00&#34;,
+                              net.access_points))[0]
+    switch_01: NetworkNode = list(filter(lambda ap: ap.name == &#34;switch_01&#34;,
+                              net.switches))[0]
+    switch_02: NetworkNode = list(filter(lambda ap: ap.name == &#34;switch_02&#34;,
+                              net.switches))[0]
+    switch_04: NetworkNode = list(filter(lambda ap: ap.name == &#34;switch_04&#34;,
+                              net.switches))[0]
+    current_l: NetworkLink = net[ap0][switch_01]
+    l_01_02: NetworkLink = net[switch_01][switch_02]
+    l_01_04: NetworkLink = net[switch_01][switch_04]
+
+    next_links: list[ExtendedNetworkLink] = net.get_next_link((ap0,
+                                                               switch_01,
+                                                               current_l))
+    self.assertEqual(len(next_links), 2)
+    self.assertTrue((switch_01, switch_02, l_01_02) in next_links)
+    self.assertTrue((switch_01, switch_04, l_01_04) in next_links)</code></pre>
+</details>
+</dd>
+<dt id="uav-mobility-app.tests.entities.test_Network.test_Network.test_get_path_device"><code class="name flex">
+<span>def <span class="ident">test_get_path_device</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Test that given a NetworkDevice, the path were its resources
+are allocated is returned. The order of NetworksLink is irrelevant.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_get_path_device(self):
+    &#34;&#34;&#34;Test that given a NetworkDevice, the path were its resources
+    are allocated is returned. The order of NetworksLink is irrelevant.
+    &#34;&#34;&#34;
+    net: Network = Network(Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;))
+    uav0: NetworkDevice = None
+    for uav in net.uavs:
+        if (uav.name == &#34;uav_00&#34;):
+            uav0 = uav
+            break
+    gateway: NetworkNode = None
+    for gw in net.gateways:
+        if (gw.name == &#34;gateway&#34;):
+            gateway = gw
+            break
+    ap0: NetworkNode = list(filter(lambda ap: ap.name == &#34;ap_00&#34;,
+                              net.access_points))[0]
+    switch_01: NetworkNode = list(filter(lambda ap: ap.name == &#34;switch_01&#34;,
+                              net.switches))[0]
+    switch_04: NetworkNode = list(filter(lambda ap: ap.name == &#34;switch_04&#34;,
+                              net.switches))[0]
+    expected_path_of_uav0: list[NetworkLink] = []
+    expected_path_of_uav0.append(net[uav0][ap0][&#34;data&#34;])
+    expected_path_of_uav0.append(net[ap0][uav0][&#34;data&#34;])
+    expected_path_of_uav0.append(net[ap0][switch_01][&#34;data&#34;])
+    expected_path_of_uav0.append(net[switch_01][ap0][&#34;data&#34;])
+    expected_path_of_uav0.append(net[switch_01][switch_04][&#34;data&#34;])
+    expected_path_of_uav0.append(net[switch_04][switch_01][&#34;data&#34;])
+    expected_path_of_uav0.append(net[switch_04][gateway][&#34;data&#34;])
+    expected_path_of_uav0.append(net[gateway][switch_04][&#34;data&#34;])
+    net.assign_path_to_device(device=uav0, path=expected_path_of_uav0)
+    actual_uav0_path  = net.get_path_device(uav0)
+    self.assertEqual(len(expected_path_of_uav0), len(actual_uav0_path))
+    for l in actual_uav0_path:
+        self.assertTrue(l in expected_path_of_uav0)</code></pre>
+</details>
+</dd>
+<dt id="uav-mobility-app.tests.entities.test_Network.test_Network.test_initialization"><code class="name flex">
 <span>def <span class="ident">test_initialization</span></span>(<span>self)</span>
 </code></dt>
 <dd>
@@ -277,17 +1215,17 @@ not have a method with the specified name.</p></div>
         input_data[&#34;network_nodes&#34;])))
     n_network_devices: int = len(input_data[&#34;network_devices&#34;])
     n_network_links: int = len(input_data[&#34;network_links&#34;])
-    my_net = Network(input_path)
-    self.assertEqual(len(my_net.nodes),
+    net = Network(input_path)
+    self.assertEqual(len(net.nodes),
                      n_network_devices + n_network_nodes)
-    self.assertEqual(len(my_net.gateways), n_gws)
-    self.assertEqual(len(my_net.switches), n_sws)
-    self.assertEqual(len(my_net.access_points), n_aps)
-    self.assertEqual(len(my_net.edges),
+    self.assertEqual(len(net.gateways), n_gws)
+    self.assertEqual(len(net.switches), n_sws)
+    self.assertEqual(len(net.access_points), n_aps)
+    self.assertEqual(len(net.edges),
                      n_network_links)</code></pre>
 </details>
 </dd>
-<dt id="uav-mobility-app.tests.entities.test_Network.test_NetworkDevice.test_network_devices"><code class="name flex">
+<dt id="uav-mobility-app.tests.entities.test_Network.test_Network.test_network_devices"><code class="name flex">
 <span>def <span class="ident">test_network_devices</span></span>(<span>self)</span>
 </code></dt>
 <dd>
@@ -304,8 +1242,8 @@ data.</p></div>
     input_path: Path = Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;)
     input_data = parse_json(input_path)
     expected_devices : list[NetworkDevice] = input_data[&#34;network_devices&#34;]
-    my_net = Network(input_path)
-    zipped_devices = zip(my_net.network_devices, expected_devices)
+    net = Network(input_path)
+    zipped_devices = zip(net.network_devices, expected_devices)
     for (d1, d2) in zipped_devices:
         self.assertEqual(d1.id, d2.id)
         self.assertEqual(d1.name, d2.name)
@@ -316,7 +1254,7 @@ data.</p></div>
         self.assertEqual(d1.is_active, d2.is_active)</code></pre>
 </details>
 </dd>
-<dt id="uav-mobility-app.tests.entities.test_Network.test_NetworkDevice.test_network_links"><code class="name flex">
+<dt id="uav-mobility-app.tests.entities.test_Network.test_Network.test_network_links"><code class="name flex">
 <span>def <span class="ident">test_network_links</span></span>(<span>self)</span>
 </code></dt>
 <dd>
@@ -332,10 +1270,10 @@ data.</p></div>
     &#34;&#34;&#34;
     input_path: Path = Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;)
     input_data = parse_json(input_path)
-    expected_links : list[NetworkLink] = input_data[&#34;network_links&#34;]
-    print(expected_links)
-    my_net = Network(input_path)
-    zipped_links = zip(my_net.network_links, expected_links)
+    expected_links = input_data[&#34;network_links&#34;]
+    expected_links: list[NetworkLink] = [l[2] for l in expected_links]
+    net = Network(input_path)
+    zipped_links = zip(net.network_links, expected_links)
     for (l1, l2) in zipped_links:
         self.assertEqual(l1.id, l2.id)
         self.assertEqual(l1.name, l2.name)
@@ -345,7 +1283,7 @@ data.</p></div>
         self.assertEqual(l1.delay, l2.delay)</code></pre>
 </details>
 </dd>
-<dt id="uav-mobility-app.tests.entities.test_Network.test_NetworkDevice.test_network_nodes"><code class="name flex">
+<dt id="uav-mobility-app.tests.entities.test_Network.test_Network.test_network_nodes"><code class="name flex">
 <span>def <span class="ident">test_network_nodes</span></span>(<span>self)</span>
 </code></dt>
 <dd>
@@ -362,13 +1300,123 @@ data.</p></div>
     input_path: Path = Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;)
     input_data = parse_json(input_path)
     expected_nodes: list[NetworkNode] = input_data[&#34;network_nodes&#34;]
-    my_net = Network(input_path)
-    zipped_nodes = zip(my_net.network_nodes, expected_nodes)
+    net = Network(input_path)
+    zipped_nodes = zip(net.network_nodes, expected_nodes)
     for (n1, n2) in zipped_nodes:
         self.assertEqual(n1.id, n2.id)
         self.assertEqual(n1.name, n2.name)
         self.assertEqual(n1.node_type, n2.node_type)
         self.assertEqual(n1.position, n2.position)</code></pre>
+</details>
+</dd>
+<dt id="uav-mobility-app.tests.entities.test_Network.test_Network.test_shortest_path_to_gw"><code class="name flex">
+<span>def <span class="ident">test_shortest_path_to_gw</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Test that the expected shortest paths from the testing
+scenario are returned in different situations.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_shortest_path_to_gw(self):
+    &#34;&#34;&#34;Test that the expected shortest paths from the testing
+    scenario are returned in different situations.
+    &#34;&#34;&#34;
+    net: Network = Network(Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;))
+
+    uav0: NetworkDevice = None
+    for uav in net.uavs:
+        if (uav.name == &#34;uav_00&#34;):
+            uav0 = uav
+            break
+    gateway: NetworkNode = None
+    for gw in net.gateways:
+        if (gw.name == &#34;gateway&#34;):
+            gateway = gw
+            break
+    shortest_path = net.shortest_path_to_gw(network_device=uav0,
+                                            gateway=gateway)
+
+    expected_links: list[NetworkLink] = []
+
+    ap0: NetworkNode = list(filter(lambda ap: ap.name == &#34;ap_00&#34;,
+                              net.access_points))[0]
+    expected_links.append(net[uav0][ap0][&#34;data&#34;])
+    expected_links.append(net[ap0][uav0][&#34;data&#34;])
+    switch_01: NetworkNode = list(filter(lambda ap: ap.name == &#34;switch_01&#34;,
+                              net.switches))[0]
+    expected_links.append(net[ap0][switch_01][&#34;data&#34;])
+    expected_links.append(net[switch_01][ap0][&#34;data&#34;])
+    switch_04: NetworkNode = list(filter(lambda ap: ap.name == &#34;switch_04&#34;,
+                              net.switches))[0]
+    expected_links.append(net[switch_01][switch_04][&#34;data&#34;])
+    expected_links.append(net[switch_04][switch_01][&#34;data&#34;])
+    expected_links.append(net[switch_04][gateway][&#34;data&#34;])
+    expected_links.append(net[gateway][switch_04][&#34;data&#34;])
+    zipped_links = zip(shortest_path, expected_links)
+    for (l1, l2) in zipped_links:
+        self.assertEqual(l1, l2)</code></pre>
+</details>
+</dd>
+<dt id="uav-mobility-app.tests.entities.test_Network.test_Network.test_switches"><code class="name flex">
+<span>def <span class="ident">test_switches</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Test that the NetworkNodes of type NetworkNodeType.SW are
+consistent w.r.t. the input data.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_switches(self):
+    &#34;&#34;&#34;Test that the NetworkNodes of type NetworkNodeType.SW are
+    consistent w.r.t. the input data.
+    &#34;&#34;&#34;
+    input_path: Path = Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;)
+    input_data: list[NetworkNode] = parse_json(input_path)[&#34;network_nodes&#34;]
+    expected_switches: list[NetworkNode] = list(filter(
+        lambda network_node: network_node.node_type == &#34;SW&#34;,
+        input_data))
+    net = Network(input_path)
+    zipped_switches = zip(net.switches, expected_switches)
+    for (s1, s2) in zipped_switches:
+        self.assertEqual(s1.id, s2.id)
+        self.assertEqual(s1.name, s2.name)
+        self.assertEqual(s1.node_type, s2.node_type)
+        self.assertEqual(s1.position, s2.position)</code></pre>
+</details>
+</dd>
+<dt id="uav-mobility-app.tests.entities.test_Network.test_Network.test_uavs"><code class="name flex">
+<span>def <span class="ident">test_uavs</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Test that the NetworkDevices of type NetworkDeviceType.UAV
+are consistent w.r.t. the input data.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_uavs(self):
+    &#34;&#34;&#34;Test that the NetworkDevices of type NetworkDeviceType.UAV
+    are consistent w.r.t. the input data.
+    &#34;&#34;&#34;
+    input_path: Path = Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;)
+    input_data: list[NetworkDevice] = \
+        parse_json(input_path)[&#34;network_devices&#34;]
+    expected_uavs: list[NetworkDevice] = list(filter(
+        lambda network_device: network_device.device_type == &#34;UAV&#34;,
+        input_data))
+    net = Network(input_path)
+    zipped_uavs = zip(net.uavs, expected_uavs)
+    for (u1, u2) in zipped_uavs:
+        self.assertEqual(u1.id, u2.id)
+        self.assertEqual(u1.name, u2.name)
+        self.assertEqual(u1.device_type, u2.device_type)
+        self.assertEqual(u1.throughput_req, u2.throughput_req)
+        self.assertEqual(u1.delay_req, u2.delay_req)
+        self.assertEqual(u1.position, u2.position)
+        self.assertEqual(u1.is_active, u2.is_active)</code></pre>
 </details>
 </dd>
 </dl>
@@ -390,12 +1438,24 @@ data.</p></div>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="uav-mobility-app.tests.entities.test_Network.test_NetworkDevice" href="#uav-mobility-app.tests.entities.test_Network.test_NetworkDevice">test_NetworkDevice</a></code></h4>
+<h4><code><a title="uav-mobility-app.tests.entities.test_Network.test_Network" href="#uav-mobility-app.tests.entities.test_Network.test_Network">test_Network</a></code></h4>
 <ul class="">
-<li><code><a title="uav-mobility-app.tests.entities.test_Network.test_NetworkDevice.test_initialization" href="#uav-mobility-app.tests.entities.test_Network.test_NetworkDevice.test_initialization">test_initialization</a></code></li>
-<li><code><a title="uav-mobility-app.tests.entities.test_Network.test_NetworkDevice.test_network_devices" href="#uav-mobility-app.tests.entities.test_Network.test_NetworkDevice.test_network_devices">test_network_devices</a></code></li>
-<li><code><a title="uav-mobility-app.tests.entities.test_Network.test_NetworkDevice.test_network_links" href="#uav-mobility-app.tests.entities.test_Network.test_NetworkDevice.test_network_links">test_network_links</a></code></li>
-<li><code><a title="uav-mobility-app.tests.entities.test_Network.test_NetworkDevice.test_network_nodes" href="#uav-mobility-app.tests.entities.test_Network.test_NetworkDevice.test_network_nodes">test_network_nodes</a></code></li>
+<li><code><a title="uav-mobility-app.tests.entities.test_Network.test_Network.test_access_points" href="#uav-mobility-app.tests.entities.test_Network.test_Network.test_access_points">test_access_points</a></code></li>
+<li><code><a title="uav-mobility-app.tests.entities.test_Network.test_Network.test_assign_path_to_device" href="#uav-mobility-app.tests.entities.test_Network.test_Network.test_assign_path_to_device">test_assign_path_to_device</a></code></li>
+<li><code><a title="uav-mobility-app.tests.entities.test_Network.test_Network.test_cams" href="#uav-mobility-app.tests.entities.test_Network.test_Network.test_cams">test_cams</a></code></li>
+<li><code><a title="uav-mobility-app.tests.entities.test_Network.test_Network.test_free_path_device" href="#uav-mobility-app.tests.entities.test_Network.test_Network.test_free_path_device">test_free_path_device</a></code></li>
+<li><code><a title="uav-mobility-app.tests.entities.test_Network.test_Network.test_gateways" href="#uav-mobility-app.tests.entities.test_Network.test_Network.test_gateways">test_gateways</a></code></li>
+<li><code><a title="uav-mobility-app.tests.entities.test_Network.test_Network.test_generate_cam_event" href="#uav-mobility-app.tests.entities.test_Network.test_Network.test_generate_cam_event">test_generate_cam_event</a></code></li>
+<li><code><a title="uav-mobility-app.tests.entities.test_Network.test_Network.test_generate_uav_event" href="#uav-mobility-app.tests.entities.test_Network.test_Network.test_generate_uav_event">test_generate_uav_event</a></code></li>
+<li><code><a title="uav-mobility-app.tests.entities.test_Network.test_Network.test_get_next_link" href="#uav-mobility-app.tests.entities.test_Network.test_Network.test_get_next_link">test_get_next_link</a></code></li>
+<li><code><a title="uav-mobility-app.tests.entities.test_Network.test_Network.test_get_path_device" href="#uav-mobility-app.tests.entities.test_Network.test_Network.test_get_path_device">test_get_path_device</a></code></li>
+<li><code><a title="uav-mobility-app.tests.entities.test_Network.test_Network.test_initialization" href="#uav-mobility-app.tests.entities.test_Network.test_Network.test_initialization">test_initialization</a></code></li>
+<li><code><a title="uav-mobility-app.tests.entities.test_Network.test_Network.test_network_devices" href="#uav-mobility-app.tests.entities.test_Network.test_Network.test_network_devices">test_network_devices</a></code></li>
+<li><code><a title="uav-mobility-app.tests.entities.test_Network.test_Network.test_network_links" href="#uav-mobility-app.tests.entities.test_Network.test_Network.test_network_links">test_network_links</a></code></li>
+<li><code><a title="uav-mobility-app.tests.entities.test_Network.test_Network.test_network_nodes" href="#uav-mobility-app.tests.entities.test_Network.test_Network.test_network_nodes">test_network_nodes</a></code></li>
+<li><code><a title="uav-mobility-app.tests.entities.test_Network.test_Network.test_shortest_path_to_gw" href="#uav-mobility-app.tests.entities.test_Network.test_Network.test_shortest_path_to_gw">test_shortest_path_to_gw</a></code></li>
+<li><code><a title="uav-mobility-app.tests.entities.test_Network.test_Network.test_switches" href="#uav-mobility-app.tests.entities.test_Network.test_Network.test_switches">test_switches</a></code></li>
+<li><code><a title="uav-mobility-app.tests.entities.test_Network.test_Network.test_uavs" href="#uav-mobility-app.tests.entities.test_Network.test_Network.test_uavs">test_uavs</a></code></li>
 </ul>
 </li>
 </ul>

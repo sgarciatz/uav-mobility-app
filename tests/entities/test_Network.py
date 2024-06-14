@@ -359,7 +359,6 @@ class test_Network(unittest.TestCase):
         next_links: list[ExtendedNetworkLink] = net.get_next_link((ap0,
                                                                    switch_01,
                                                                    current_l))
-        print(next_links)
         self.assertEqual(len(next_links), 2)
         self.assertTrue((switch_01, switch_02, l_01_02) in next_links)
         self.assertTrue((switch_01, switch_04, l_01_04) in next_links)
@@ -377,7 +376,7 @@ class test_Network(unittest.TestCase):
         self.assertEqual(len(list(net.out_edges(uav))), 1)
         self.assertEqual(list(net.out_edges(uav))[0][1],
                          list(net.in_edges(uav))[0][0])
-        
+
 
     def test_generate_cam_event(self):
         """Test that when that events for NetworkDevices of type
