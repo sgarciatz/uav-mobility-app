@@ -64,7 +64,7 @@ class Network(nx.DiGraph):
         return self._network_nodes
 
     @property
-    def gateways(self) -> list[NetworkDevice]:
+    def gateways(self) -> list[NetworkNode]:
         """Returns the list of the NetworkDevices of type
         NetworkDeviceType.GW within the graph.
 
@@ -75,7 +75,7 @@ class Network(nx.DiGraph):
         return self._gateways
 
     @property
-    def switches(self) -> list[NetworkDevice]:
+    def switches(self) -> list[NetworkNode]:
         """Returns the list of the NetworkDevices of type
         NetworkDeviceType.SW within the graph.
 
@@ -87,7 +87,7 @@ class Network(nx.DiGraph):
         return self._switches
 
     @property
-    def access_points(self) -> list[NetworkDevice]:
+    def access_points(self) -> list[NetworkNode]:
         """Returns the list of the NetworkDevices of type
         NetworkDeviceType.AP within the graph.
 
@@ -255,23 +255,17 @@ class Network(nx.DiGraph):
             l.remove_flow(device)
 
     def get_next_link(self,
-                      link: ExtendedNetworkLink
-                      ) -> list[ExtendedNetworkLink]:
+                      link: ExtendedNetworkLink) -> list[ExtendedNetworkLink]:
         """Given a graph edge, a tuple of the src and dst NetworkNodes
         and the NetworkLink, return the next edges that lead to the
         gateway.
 
         Args:
-            link (tuple[NetworkNode,
-                        NetworkNode,
-                        dict[str,NetworkDevice]]): The current
-            edge.
+            link (ExtendedNetworkLink): The current edge (NetworkLink).
 
         Returns:
-            list[tuple[NetworkNode,
-                       NetworkNode,
-                       dict[str, NetworkLink]]]: The list of possible
-            next NetworkLinks that can be selected to build the path.
+            list[ExtendedNetworkLink]: The list of possible next
+            NetworkLinks that can be selected to build the path.
         """
         dst_node: NetworkNode = link[1]
         gw: NetworkNode = self._gateways[0]
