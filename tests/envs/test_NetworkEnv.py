@@ -6,6 +6,7 @@ from uav_mobility_app.gym_envs.entities.NetworkDevice import NetworkDevice
 from uav_mobility_app.gym_envs.entities.NetworkLink import NetworkLink
 from uav_mobility_app.gym_envs.enums.NetworkNodeType import NetworkNodeType
 from uav_mobility_app.gym_envs.enums.NetworkDeviceType import NetworkDeviceType
+from uav_mobility_app.gym_envs.entities.ExtendedNetworkLink import ExtendedNetworkLink
 from gymnasium.spaces import Space
 import numpy as np
 from pathlib import Path
@@ -170,3 +171,30 @@ class test_NetworkEnv(unittest.TestCase):
             self.assertEqual(max_c, option[0])
             self.assertEqual(max_l, option[1])
             self.assertEqual(min_t, option[2])
+
+    def test_get_next_links(self):
+        """Check that the adjacent NetworkLinks to a given NetworkNode
+        that lead to the NetworkNode of NetworkNodeType.GW are returned.
+        """
+        n_actions = 5
+        net: Network = Network(Path.cwd().joinpath("input", "network_00.json"))
+        net_env = NetworkEnv(network=net,
+                             n_actions=n_actions,
+                             render_mode=None)
+        link: ExtendedNetworkLink = list(filter(
+            lambda l: l[2]["data"].id == 119,
+            list(net.edges(data=True))))[0]
+        net_env._path.append(link)
+        next_links: list[ExtendedNetworkLink] = net_env._get_next_links()
+        print(next_links)
+        link_0: ExtendedNetworkLink = list(filter(
+            lambda l: l[2]["data"].id == 107,
+            list(net.edges(data=True))))[0]
+        link_1: ExtendedNetworkLink = list(filter(
+            lambda l: l[2]["data"].id == 110,
+            list(net.edges(data=True))))[0]
+        self.assertEqual(link_0, next_links[0])
+        self.assertEqual(link_1, next_links[1])
+        self.assertEqual((0, 0, 0), next_links[2])
+        self.assertEqual((0, 0, 0), next_links[3])
+        self.assertEqual((0, 0, 0), next_links[4])
