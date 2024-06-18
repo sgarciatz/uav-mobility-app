@@ -3,9 +3,7 @@ from pathlib import Path
 import json
 from uav_mobility_app.network_envs.entities.NetworkLink import NetworkLink
 from uav_mobility_app.network_envs.entities.NetworkDevice import NetworkDevice
-from uav_mobility_app.network_envs.enums.NetworkDeviceType import NetworkDeviceType
 from uav_mobility_app.network_envs.entities.NetworkNode import NetworkNode
-from uav_mobility_app.network_envs.enums.NetworkNodeType import NetworkNodeType
 from uav_mobility_app.network_envs.entities.Network import Network
 from uav_mobility_app.network_envs.entities.Network import ExtendedNetworkLink
 from uav_mobility_app.network_envs.utils.NetworkJSONParser import parse_json

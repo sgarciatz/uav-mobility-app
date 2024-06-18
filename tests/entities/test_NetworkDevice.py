@@ -1,6 +1,6 @@
 import unittest
-from uav_mobility_app.network_envs.entities.NetworkDevice import NetworkDevice
-from uav_mobility_app.network_envs.enums.NetworkDeviceType import NetworkDeviceType
+from network_envs.entities.NetworkDevice import NetworkDevice
+from network_envs.enums.NetworkDeviceType import NetworkDeviceType
 
 
 class test_NetworkDevice(unittest.TestCase):

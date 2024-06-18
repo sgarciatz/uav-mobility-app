@@ -4,7 +4,6 @@ authors = [
     {name = "Santiago García Gil", email = "santiagogg@unex.es"},
 ]
 description = "A gymnasium-based network digital twin."
-readme = "README.md"
 license = {text = "MIT License"}
 version = "0.0.1"
 dependencies = [
