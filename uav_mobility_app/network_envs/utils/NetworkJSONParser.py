@@ -18,7 +18,8 @@ def parse_json(file_path: Path) -> dict:
         dict: The dict with all the NetworkDevices, NetworkNodes and
         NetworkLinks.
     """
-    input_data = json.load(open(file_path))
+    with open(file_path) as file_path:
+        input_data = json.load(file_path)
     network_nodes: list[NetworkNode] = []
     for nd in input_data["network_nodes"]:
         network_node = NetworkNode(nd["node_id"],

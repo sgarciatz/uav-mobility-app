@@ -17,27 +17,28 @@ class test_Network(unittest.TestCase):
         """Checks that the initialization of a Network is consistent.
         """
         input_path: Path = Path.cwd().joinpath("input", "network_00.json")
-        input_data: dict = json.load(open(input_path))
-        n_network_nodes: int = len(input_data["network_nodes"])
-        n_gws = len(list(filter(
-            lambda network_node: network_node["node_type"] == "GW",
-            input_data["network_nodes"])))
-        n_sws = len(list(filter(
-            lambda network_node: network_node["node_type"] == "SW",
-            input_data["network_nodes"])))
-        n_aps = len(list(filter(
-            lambda network_node: network_node["node_type"] == "AP",
-            input_data["network_nodes"])))
-        n_network_devices: int = len(input_data["network_devices"])
-        n_network_links: int = len(input_data["network_links"])
-        net = Network(input_path)
-        self.assertEqual(len(net.nodes),
-                         n_network_devices + n_network_nodes)
-        self.assertEqual(len(net.gateways), n_gws)
-        self.assertEqual(len(net.switches), n_sws)
-        self.assertEqual(len(net.access_points), n_aps)
-        self.assertEqual(len(net.edges),
-                         n_network_links)
+        with open(input_path) as input_file:
+            input_data: dict = json.load(input_file)
+            n_network_nodes: int = len(input_data["network_nodes"])
+            n_gws = len(list(filter(
+                lambda network_node: network_node["node_type"] == "GW",
+                input_data["network_nodes"])))
+            n_sws = len(list(filter(
+                lambda network_node: network_node["node_type"] == "SW",
+                input_data["network_nodes"])))
+            n_aps = len(list(filter(
+                lambda network_node: network_node["node_type"] == "AP",
+                input_data["network_nodes"])))
+            n_network_devices: int = len(input_data["network_devices"])
+            n_network_links: int = len(input_data["network_links"])
+            net = Network(input_path)
+            self.assertEqual(len(net.nodes),
+                            n_network_devices + n_network_nodes)
+            self.assertEqual(len(net.gateways), n_gws)
+            self.assertEqual(len(net.switches), n_sws)
+            self.assertEqual(len(net.access_points), n_aps)
+            self.assertEqual(len(net.edges),
+                            n_network_links)
 
     def test_network_nodes(self):
         """Test that the network nodes are consistent w.r.t. the input
