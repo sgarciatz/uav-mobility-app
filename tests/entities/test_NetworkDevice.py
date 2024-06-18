@@ -1,6 +1,6 @@
 import unittest
-from uav_mobility_app.gym_envs.entities.NetworkDevice import NetworkDevice
-from uav_mobility_app.gym_envs.enums.NetworkDeviceType import NetworkDeviceType
+from uav_mobility_app.network_envs.entities.NetworkDevice import NetworkDevice
+from uav_mobility_app.network_envs.enums.NetworkDeviceType import NetworkDeviceType
 
 
 class test_NetworkDevice(unittest.TestCase):
@@ -211,12 +211,13 @@ class test_NetworkDevice(unittest.TestCase):
         delay_req = 12.1
         throughput_req = 89.3
         position = (2, 2)
-        network_dev: NetworkDevice = NetworkDevice(id,
-                                                   name,
-                                                   dev_type,
-                                                   delay_req,
-                                                   throughput_req,
-                                                   position)
+        network_dev: NetworkDevice = NetworkDevice(
+            device_id=id,
+            device_name=name,
+            device_type=dev_type,
+            delay_req=delay_req,
+            throughput_req=throughput_req,
+            position=position)
         new_position = (4, 4)
         network_dev.position = new_position
         self.assertEqual(network_dev.position, position)

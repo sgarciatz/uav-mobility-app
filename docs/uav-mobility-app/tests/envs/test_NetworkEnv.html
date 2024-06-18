@@ -27,13 +27,14 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">import unittest
-from uav_mobility_app.gym_envs.envs.NetworkEnv import NetworkEnv
-from uav_mobility_app.gym_envs.entities.Network import Network
-from uav_mobility_app.gym_envs.entities.NetworkNode import NetworkNode
-from uav_mobility_app.gym_envs.entities.NetworkDevice import NetworkDevice
-from uav_mobility_app.gym_envs.entities.NetworkLink import NetworkLink
-from uav_mobility_app.gym_envs.enums.NetworkNodeType import NetworkNodeType
-from uav_mobility_app.gym_envs.enums.NetworkDeviceType import NetworkDeviceType
+from uav_mobility_app.network_envs.envs.NetworkEnv import NetworkEnv
+from uav_mobility_app.network_envs.entities.Network import Network
+from uav_mobility_app.network_envs.entities.NetworkNode import NetworkNode
+from uav_mobility_app.network_envs.entities.NetworkDevice import NetworkDevice
+from uav_mobility_app.network_envs.entities.NetworkLink import NetworkLink
+from uav_mobility_app.network_envs.enums.NetworkNodeType import NetworkNodeType
+from uav_mobility_app.network_envs.enums.NetworkDeviceType import NetworkDeviceType
+from uav_mobility_app.network_envs.entities.ExtendedNetworkLink import ExtendedNetworkLink
 from gymnasium.spaces import Space
 import numpy as np
 from pathlib import Path
@@ -47,8 +48,8 @@ class test_NetworkEnv(unittest.TestCase):
         network_00.json is the environment used.
         &#34;&#34;&#34;
         n_actions = 5
-        net: Network = Network(Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;))
-        net_env = NetworkEnv(network=net,
+        configuration: Path = Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;)
+        net_env = NetworkEnv(configuration=configuration,
                              n_actions=n_actions,
                              render_mode=None)
         obs_space: Space = net_env.get_wrapper_attr(&#34;observation_space&#34;)
@@ -65,8 +66,8 @@ class test_NetworkEnv(unittest.TestCase):
         consistent to the available links for the selected
         NetworkDevice.&#34;&#34;&#34;
         n_actions = 5
-        net: Network = Network(Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;))
-        net_env = NetworkEnv(network=net,
+        configuration: Path = Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;)
+        net_env = NetworkEnv(configuration=configuration,
                              n_actions=n_actions,
                              render_mode=None)
         obs, _ = net_env.reset(seed=None, options=None)
@@ -80,38 +81,46 @@ class test_NetworkEnv(unittest.TestCase):
             self.assertEqual(max_c, option[0])
             self.assertEqual(max_l, option[1])
             self.assertEqual(min_t, option[2])
-        for l in net.network_links:
+        for l in net_env._network.network_links:
             self.assertEqual(l.available_throughput, l.max_throughput)
             self.assertEqual(len(l.routed_flows), 0)
         selected_dev: NetworkDevice = net_env.get_wrapper_attr(&#34;_dev&#34;)
         self.assertTrue(selected_dev.is_active)
-        for d in set(net.network_devices) - set([selected_dev]):
+        for d in set(net_env._network.network_devices) - set([selected_dev]):
             self.assertFalse(d.is_active)
 
     def test_hard_reset(self):
-        &#34;&#34;&#34;Test that when the reset function is called with the hard
-        reset flag, the Network is cleared, i.e., the NetworkDevices&#39;
-        paths are deallocated, they are set to inactive and all
-        NetworkLinks&#39; resources are freed.
+        &#34;&#34;&#34;Test that when the reset function is called enough times, the
+        hard reset is triggered, the Network is cleared, i.e., the
+        NetworkDevices&#39; paths are deallocated, they are set to inactive
+        and all NetworkLinks&#39; resources are freed.
         &#34;&#34;&#34;
         n_actions = 5
-        net: Network = Network(Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;))
-        net_env = NetworkEnv(network=net,
+        configuration: Path = Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;)
+        hard_reset_period = 5
+        net_env = NetworkEnv(configuration=configuration,
                              n_actions=n_actions,
+                             hard_reset_period= hard_reset_period,
                              render_mode=None)
+        for i in range(hard_reset_period - 1):
+            net_env.reset()
+            terminated = False
+            while (not terminated):
+                obs, reward, terminated, _, _ = net_env.step(0)
+            network_link_path: list[NetworkLink] = []
+            device: NetworkDevice = net_env.get_wrapper_attr(&#34;_dev&#34;)
+            self.assertTrue(device.is_active)
+            for l in net_env.get_wrapper_attr(&#34;_path&#34;):
+                link: NetworkLink = l[2][&#34;data&#34;]
+            for l in net_env.get_wrapper_attr(&#34;_path&#34;):
+                link: NetworkLink = l[2][&#34;data&#34;]
+                self.assertGreater(link.max_throughput, link.available_throughput)
+                network_link_path.append(link)
         net_env.reset()
-        terminated = False
-        while (not terminated):
-            obs, reward, terminated, _, _ = net_env.step(0)
-        network_link_path: list[NetworkLink] = []
-        device: NetworkDevice = net_env.get_wrapper_attr(&#34;_dev&#34;)
+        device = net_env.get_wrapper_attr(&#34;_dev&#34;)
         self.assertTrue(device.is_active)
-        for l in net_env.get_wrapper_attr(&#34;_path&#34;):
-            link: NetworkLink = l[2][&#34;data&#34;]
-            self.assertGreater(link.max_throughput, link.available_throughput)
-            network_link_path.append(link)
-        net_env.reset(options={&#34;hard_reset&#34;: True})
-        self.assertFalse(device.is_active)
+        for dev in set(net_env._network.network_devices) - set([device]):
+            self.assertFalse(dev.is_active)
         for l in network_link_path:
             self.assertEqual(link.max_throughput, link.available_throughput)
             self.assertEqual(len(l.routed_flows), 0)
@@ -125,8 +134,8 @@ class test_NetworkEnv(unittest.TestCase):
         NetworkLink. The info is a empty dict for the time being.
         &#34;&#34;&#34;
         n_actions = 5
-        net: Network = Network(Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;))
-        net_env = NetworkEnv(network=net,
+        configuration: Path = Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;)
+        net_env = NetworkEnv(configuration=configuration,
                              n_actions=n_actions,
                              render_mode=None)
         net_env.reset()
@@ -147,8 +156,8 @@ class test_NetworkEnv(unittest.TestCase):
         no NetworkLink is added to the self._path list.
         &#34;&#34;&#34;
         n_actions = 5
-        net: Network = Network(Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;))
-        net_env = NetworkEnv(network=net,
+        configuration: Path = Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;)
+        net_env = NetworkEnv(configuration=configuration,
                              n_actions=n_actions,
                              render_mode=None)
         net_env.reset()
@@ -176,13 +185,13 @@ class test_NetworkEnv(unittest.TestCase):
         links.
         &#34;&#34;&#34;
         n_actions = 5
-        net: Network = Network(Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;))
-        net_env = NetworkEnv(network=net,
+        configuration: Path = Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;)
+        net_env = NetworkEnv(configuration=configuration,
                              n_actions=n_actions,
                              render_mode=None)
         uav: NetworkDevice =  list(filter(
             lambda u: u.name == &#34;uav_00&#34;,
-            net.uavs))[0]
+            net_env._network.uavs))[0]
         net_env._dev = uav
         link= list(net_env._network.out_edges(net_env._dev, data=True))[0]
         net_env._path.append(link)
@@ -197,7 +206,33 @@ class test_NetworkEnv(unittest.TestCase):
         for option in obs[1:]:
             self.assertEqual(max_c, option[0])
             self.assertEqual(max_l, option[1])
-            self.assertEqual(min_t, option[2])</code></pre>
+            self.assertEqual(min_t, option[2])
+
+    def test_get_next_links(self):
+        &#34;&#34;&#34;Check that the adjacent NetworkLinks to a given NetworkNode
+        that lead to the NetworkNode of NetworkNodeType.GW are returned.
+        &#34;&#34;&#34;
+        n_actions = 5
+        configuration: Path = Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;)
+        net_env = NetworkEnv(configuration=configuration,
+                             n_actions=n_actions,
+                             render_mode=None)
+        link: ExtendedNetworkLink = list(filter(
+            lambda l: l[2][&#34;data&#34;].id == 119,
+            list(net_env._network.edges(data=True))))[0]
+        net_env._path.append(link)
+        next_links: list[ExtendedNetworkLink] = net_env._get_next_links()
+        link_0: ExtendedNetworkLink = list(filter(
+            lambda l: l[2][&#34;data&#34;].id == 107,
+            list(net_env._network.edges(data=True))))[0]
+        link_1: ExtendedNetworkLink = list(filter(
+            lambda l: l[2][&#34;data&#34;].id == 110,
+            list(net_env._network.edges(data=True))))[0]
+        self.assertEqual(link_0, next_links[0])
+        self.assertEqual(link_1, next_links[1])
+        self.assertEqual((0, 0, 0), next_links[2])
+        self.assertEqual((0, 0, 0), next_links[3])
+        self.assertEqual((0, 0, 0), next_links[4])</code></pre>
 </details>
 </section>
 <section>
@@ -254,8 +289,8 @@ not have a method with the specified name.</p></div>
         network_00.json is the environment used.
         &#34;&#34;&#34;
         n_actions = 5
-        net: Network = Network(Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;))
-        net_env = NetworkEnv(network=net,
+        configuration: Path = Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;)
+        net_env = NetworkEnv(configuration=configuration,
                              n_actions=n_actions,
                              render_mode=None)
         obs_space: Space = net_env.get_wrapper_attr(&#34;observation_space&#34;)
@@ -272,8 +307,8 @@ not have a method with the specified name.</p></div>
         consistent to the available links for the selected
         NetworkDevice.&#34;&#34;&#34;
         n_actions = 5
-        net: Network = Network(Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;))
-        net_env = NetworkEnv(network=net,
+        configuration: Path = Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;)
+        net_env = NetworkEnv(configuration=configuration,
                              n_actions=n_actions,
                              render_mode=None)
         obs, _ = net_env.reset(seed=None, options=None)
@@ -287,38 +322,46 @@ not have a method with the specified name.</p></div>
             self.assertEqual(max_c, option[0])
             self.assertEqual(max_l, option[1])
             self.assertEqual(min_t, option[2])
-        for l in net.network_links:
+        for l in net_env._network.network_links:
             self.assertEqual(l.available_throughput, l.max_throughput)
             self.assertEqual(len(l.routed_flows), 0)
         selected_dev: NetworkDevice = net_env.get_wrapper_attr(&#34;_dev&#34;)
         self.assertTrue(selected_dev.is_active)
-        for d in set(net.network_devices) - set([selected_dev]):
+        for d in set(net_env._network.network_devices) - set([selected_dev]):
             self.assertFalse(d.is_active)
 
     def test_hard_reset(self):
-        &#34;&#34;&#34;Test that when the reset function is called with the hard
-        reset flag, the Network is cleared, i.e., the NetworkDevices&#39;
-        paths are deallocated, they are set to inactive and all
-        NetworkLinks&#39; resources are freed.
+        &#34;&#34;&#34;Test that when the reset function is called enough times, the
+        hard reset is triggered, the Network is cleared, i.e., the
+        NetworkDevices&#39; paths are deallocated, they are set to inactive
+        and all NetworkLinks&#39; resources are freed.
         &#34;&#34;&#34;
         n_actions = 5
-        net: Network = Network(Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;))
-        net_env = NetworkEnv(network=net,
+        configuration: Path = Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;)
+        hard_reset_period = 5
+        net_env = NetworkEnv(configuration=configuration,
                              n_actions=n_actions,
+                             hard_reset_period= hard_reset_period,
                              render_mode=None)
+        for i in range(hard_reset_period - 1):
+            net_env.reset()
+            terminated = False
+            while (not terminated):
+                obs, reward, terminated, _, _ = net_env.step(0)
+            network_link_path: list[NetworkLink] = []
+            device: NetworkDevice = net_env.get_wrapper_attr(&#34;_dev&#34;)
+            self.assertTrue(device.is_active)
+            for l in net_env.get_wrapper_attr(&#34;_path&#34;):
+                link: NetworkLink = l[2][&#34;data&#34;]
+            for l in net_env.get_wrapper_attr(&#34;_path&#34;):
+                link: NetworkLink = l[2][&#34;data&#34;]
+                self.assertGreater(link.max_throughput, link.available_throughput)
+                network_link_path.append(link)
         net_env.reset()
-        terminated = False
-        while (not terminated):
-            obs, reward, terminated, _, _ = net_env.step(0)
-        network_link_path: list[NetworkLink] = []
-        device: NetworkDevice = net_env.get_wrapper_attr(&#34;_dev&#34;)
+        device = net_env.get_wrapper_attr(&#34;_dev&#34;)
         self.assertTrue(device.is_active)
-        for l in net_env.get_wrapper_attr(&#34;_path&#34;):
-            link: NetworkLink = l[2][&#34;data&#34;]
-            self.assertGreater(link.max_throughput, link.available_throughput)
-            network_link_path.append(link)
-        net_env.reset(options={&#34;hard_reset&#34;: True})
-        self.assertFalse(device.is_active)
+        for dev in set(net_env._network.network_devices) - set([device]):
+            self.assertFalse(dev.is_active)
         for l in network_link_path:
             self.assertEqual(link.max_throughput, link.available_throughput)
             self.assertEqual(len(l.routed_flows), 0)
@@ -332,8 +375,8 @@ not have a method with the specified name.</p></div>
         NetworkLink. The info is a empty dict for the time being.
         &#34;&#34;&#34;
         n_actions = 5
-        net: Network = Network(Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;))
-        net_env = NetworkEnv(network=net,
+        configuration: Path = Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;)
+        net_env = NetworkEnv(configuration=configuration,
                              n_actions=n_actions,
                              render_mode=None)
         net_env.reset()
@@ -354,8 +397,8 @@ not have a method with the specified name.</p></div>
         no NetworkLink is added to the self._path list.
         &#34;&#34;&#34;
         n_actions = 5
-        net: Network = Network(Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;))
-        net_env = NetworkEnv(network=net,
+        configuration: Path = Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;)
+        net_env = NetworkEnv(configuration=configuration,
                              n_actions=n_actions,
                              render_mode=None)
         net_env.reset()
@@ -383,13 +426,13 @@ not have a method with the specified name.</p></div>
         links.
         &#34;&#34;&#34;
         n_actions = 5
-        net: Network = Network(Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;))
-        net_env = NetworkEnv(network=net,
+        configuration: Path = Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;)
+        net_env = NetworkEnv(configuration=configuration,
                              n_actions=n_actions,
                              render_mode=None)
         uav: NetworkDevice =  list(filter(
             lambda u: u.name == &#34;uav_00&#34;,
-            net.uavs))[0]
+            net_env._network.uavs))[0]
         net_env._dev = uav
         link= list(net_env._network.out_edges(net_env._dev, data=True))[0]
         net_env._path.append(link)
@@ -404,7 +447,33 @@ not have a method with the specified name.</p></div>
         for option in obs[1:]:
             self.assertEqual(max_c, option[0])
             self.assertEqual(max_l, option[1])
-            self.assertEqual(min_t, option[2])</code></pre>
+            self.assertEqual(min_t, option[2])
+
+    def test_get_next_links(self):
+        &#34;&#34;&#34;Check that the adjacent NetworkLinks to a given NetworkNode
+        that lead to the NetworkNode of NetworkNodeType.GW are returned.
+        &#34;&#34;&#34;
+        n_actions = 5
+        configuration: Path = Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;)
+        net_env = NetworkEnv(configuration=configuration,
+                             n_actions=n_actions,
+                             render_mode=None)
+        link: ExtendedNetworkLink = list(filter(
+            lambda l: l[2][&#34;data&#34;].id == 119,
+            list(net_env._network.edges(data=True))))[0]
+        net_env._path.append(link)
+        next_links: list[ExtendedNetworkLink] = net_env._get_next_links()
+        link_0: ExtendedNetworkLink = list(filter(
+            lambda l: l[2][&#34;data&#34;].id == 107,
+            list(net_env._network.edges(data=True))))[0]
+        link_1: ExtendedNetworkLink = list(filter(
+            lambda l: l[2][&#34;data&#34;].id == 110,
+            list(net_env._network.edges(data=True))))[0]
+        self.assertEqual(link_0, next_links[0])
+        self.assertEqual(link_1, next_links[1])
+        self.assertEqual((0, 0, 0), next_links[2])
+        self.assertEqual((0, 0, 0), next_links[3])
+        self.assertEqual((0, 0, 0), next_links[4])</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -412,42 +481,87 @@ not have a method with the specified name.</p></div>
 </ul>
 <h3>Methods</h3>
 <dl>
+<dt id="uav-mobility-app.tests.envs.test_NetworkEnv.test_NetworkEnv.test_get_next_links"><code class="name flex">
+<span>def <span class="ident">test_get_next_links</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Check that the adjacent NetworkLinks to a given NetworkNode
+that lead to the NetworkNode of NetworkNodeType.GW are returned.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_get_next_links(self):
+    &#34;&#34;&#34;Check that the adjacent NetworkLinks to a given NetworkNode
+    that lead to the NetworkNode of NetworkNodeType.GW are returned.
+    &#34;&#34;&#34;
+    n_actions = 5
+    configuration: Path = Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;)
+    net_env = NetworkEnv(configuration=configuration,
+                         n_actions=n_actions,
+                         render_mode=None)
+    link: ExtendedNetworkLink = list(filter(
+        lambda l: l[2][&#34;data&#34;].id == 119,
+        list(net_env._network.edges(data=True))))[0]
+    net_env._path.append(link)
+    next_links: list[ExtendedNetworkLink] = net_env._get_next_links()
+    link_0: ExtendedNetworkLink = list(filter(
+        lambda l: l[2][&#34;data&#34;].id == 107,
+        list(net_env._network.edges(data=True))))[0]
+    link_1: ExtendedNetworkLink = list(filter(
+        lambda l: l[2][&#34;data&#34;].id == 110,
+        list(net_env._network.edges(data=True))))[0]
+    self.assertEqual(link_0, next_links[0])
+    self.assertEqual(link_1, next_links[1])
+    self.assertEqual((0, 0, 0), next_links[2])
+    self.assertEqual((0, 0, 0), next_links[3])
+    self.assertEqual((0, 0, 0), next_links[4])</code></pre>
+</details>
+</dd>
 <dt id="uav-mobility-app.tests.envs.test_NetworkEnv.test_NetworkEnv.test_hard_reset"><code class="name flex">
 <span>def <span class="ident">test_hard_reset</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Test that when the reset function is called with the hard
-reset flag, the Network is cleared, i.e., the NetworkDevices'
-paths are deallocated, they are set to inactive and all
-NetworkLinks' resources are freed.</p></div>
+<div class="desc"><p>Test that when the reset function is called enough times, the
+hard reset is triggered, the Network is cleared, i.e., the
+NetworkDevices' paths are deallocated, they are set to inactive
+and all NetworkLinks' resources are freed.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def test_hard_reset(self):
-    &#34;&#34;&#34;Test that when the reset function is called with the hard
-    reset flag, the Network is cleared, i.e., the NetworkDevices&#39;
-    paths are deallocated, they are set to inactive and all
-    NetworkLinks&#39; resources are freed.
+    &#34;&#34;&#34;Test that when the reset function is called enough times, the
+    hard reset is triggered, the Network is cleared, i.e., the
+    NetworkDevices&#39; paths are deallocated, they are set to inactive
+    and all NetworkLinks&#39; resources are freed.
     &#34;&#34;&#34;
     n_actions = 5
-    net: Network = Network(Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;))
-    net_env = NetworkEnv(network=net,
+    configuration: Path = Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;)
+    hard_reset_period = 5
+    net_env = NetworkEnv(configuration=configuration,
                          n_actions=n_actions,
+                         hard_reset_period= hard_reset_period,
                          render_mode=None)
+    for i in range(hard_reset_period - 1):
+        net_env.reset()
+        terminated = False
+        while (not terminated):
+            obs, reward, terminated, _, _ = net_env.step(0)
+        network_link_path: list[NetworkLink] = []
+        device: NetworkDevice = net_env.get_wrapper_attr(&#34;_dev&#34;)
+        self.assertTrue(device.is_active)
+        for l in net_env.get_wrapper_attr(&#34;_path&#34;):
+            link: NetworkLink = l[2][&#34;data&#34;]
+        for l in net_env.get_wrapper_attr(&#34;_path&#34;):
+            link: NetworkLink = l[2][&#34;data&#34;]
+            self.assertGreater(link.max_throughput, link.available_throughput)
+            network_link_path.append(link)
     net_env.reset()
-    terminated = False
-    while (not terminated):
-        obs, reward, terminated, _, _ = net_env.step(0)
-    network_link_path: list[NetworkLink] = []
-    device: NetworkDevice = net_env.get_wrapper_attr(&#34;_dev&#34;)
+    device = net_env.get_wrapper_attr(&#34;_dev&#34;)
     self.assertTrue(device.is_active)
-    for l in net_env.get_wrapper_attr(&#34;_path&#34;):
-        link: NetworkLink = l[2][&#34;data&#34;]
-        self.assertGreater(link.max_throughput, link.available_throughput)
-        network_link_path.append(link)
-    net_env.reset(options={&#34;hard_reset&#34;: True})
-    self.assertFalse(device.is_active)
+    for dev in set(net_env._network.network_devices) - set([device]):
+        self.assertFalse(dev.is_active)
     for l in network_link_path:
         self.assertEqual(link.max_throughput, link.available_throughput)
         self.assertEqual(len(l.routed_flows), 0)</code></pre>
@@ -468,8 +582,8 @@ network_00.json is the environment used.</p></div>
     network_00.json is the environment used.
     &#34;&#34;&#34;
     n_actions = 5
-    net: Network = Network(Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;))
-    net_env = NetworkEnv(network=net,
+    configuration: Path = Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;)
+    net_env = NetworkEnv(configuration=configuration,
                          n_actions=n_actions,
                          render_mode=None)
     obs_space: Space = net_env.get_wrapper_attr(&#34;observation_space&#34;)
@@ -499,13 +613,13 @@ links.</p></div>
     links.
     &#34;&#34;&#34;
     n_actions = 5
-    net: Network = Network(Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;))
-    net_env = NetworkEnv(network=net,
+    configuration: Path = Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;)
+    net_env = NetworkEnv(configuration=configuration,
                          n_actions=n_actions,
                          render_mode=None)
     uav: NetworkDevice =  list(filter(
         lambda u: u.name == &#34;uav_00&#34;,
-        net.uavs))[0]
+        net_env._network.uavs))[0]
     net_env._dev = uav
     link= list(net_env._network.out_edges(net_env._dev, data=True))[0]
     net_env._path.append(link)
@@ -543,8 +657,8 @@ NetworkDevice.</p></div>
     consistent to the available links for the selected
     NetworkDevice.&#34;&#34;&#34;
     n_actions = 5
-    net: Network = Network(Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;))
-    net_env = NetworkEnv(network=net,
+    configuration: Path = Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;)
+    net_env = NetworkEnv(configuration=configuration,
                          n_actions=n_actions,
                          render_mode=None)
     obs, _ = net_env.reset(seed=None, options=None)
@@ -558,12 +672,12 @@ NetworkDevice.</p></div>
         self.assertEqual(max_c, option[0])
         self.assertEqual(max_l, option[1])
         self.assertEqual(min_t, option[2])
-    for l in net.network_links:
+    for l in net_env._network.network_links:
         self.assertEqual(l.available_throughput, l.max_throughput)
         self.assertEqual(len(l.routed_flows), 0)
     selected_dev: NetworkDevice = net_env.get_wrapper_attr(&#34;_dev&#34;)
     self.assertTrue(selected_dev.is_active)
-    for d in set(net.network_devices) - set([selected_dev]):
+    for d in set(net_env._network.network_devices) - set([selected_dev]):
         self.assertFalse(d.is_active)</code></pre>
 </details>
 </dd>
@@ -588,8 +702,8 @@ NetworkLink. The info is a empty dict for the time being.</p></div>
     NetworkLink. The info is a empty dict for the time being.
     &#34;&#34;&#34;
     n_actions = 5
-    net: Network = Network(Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;))
-    net_env = NetworkEnv(network=net,
+    configuration: Path = Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;)
+    net_env = NetworkEnv(configuration=configuration,
                          n_actions=n_actions,
                          render_mode=None)
     net_env.reset()
@@ -620,8 +734,8 @@ no NetworkLink is added to the self._path list.</p></div>
     no NetworkLink is added to the self._path list.
     &#34;&#34;&#34;
     n_actions = 5
-    net: Network = Network(Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;))
-    net_env = NetworkEnv(network=net,
+    configuration: Path = Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;)
+    net_env = NetworkEnv(configuration=configuration,
                          n_actions=n_actions,
                          render_mode=None)
     net_env.reset()
@@ -664,6 +778,7 @@ no NetworkLink is added to the self._path list.</p></div>
 <li>
 <h4><code><a title="uav-mobility-app.tests.envs.test_NetworkEnv.test_NetworkEnv" href="#uav-mobility-app.tests.envs.test_NetworkEnv.test_NetworkEnv">test_NetworkEnv</a></code></h4>
 <ul class="">
+<li><code><a title="uav-mobility-app.tests.envs.test_NetworkEnv.test_NetworkEnv.test_get_next_links" href="#uav-mobility-app.tests.envs.test_NetworkEnv.test_NetworkEnv.test_get_next_links">test_get_next_links</a></code></li>
 <li><code><a title="uav-mobility-app.tests.envs.test_NetworkEnv.test_NetworkEnv.test_hard_reset" href="#uav-mobility-app.tests.envs.test_NetworkEnv.test_NetworkEnv.test_hard_reset">test_hard_reset</a></code></li>
 <li><code><a title="uav-mobility-app.tests.envs.test_NetworkEnv.test_NetworkEnv.test_initialization" href="#uav-mobility-app.tests.envs.test_NetworkEnv.test_NetworkEnv.test_initialization">test_initialization</a></code></li>
 <li><code><a title="uav-mobility-app.tests.envs.test_NetworkEnv.test_NetworkEnv.test_obs" href="#uav-mobility-app.tests.envs.test_NetworkEnv.test_NetworkEnv.test_obs">test_obs</a></code></li>

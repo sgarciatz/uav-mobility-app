@@ -1,12 +1,14 @@
 import networkx as nx
-from uav_mobility_app.gym_envs.utils.NetworkJSONParser import parse_json
-from uav_mobility_app.gym_envs.enums.NetworkNodeType import NetworkNodeType
-from uav_mobility_app.gym_envs.entities.NetworkNode import NetworkNode
-from uav_mobility_app.gym_envs.entities.NetworkLink import NetworkLink
-from uav_mobility_app.gym_envs.entities.NetworkDevice import NetworkDevice
-from uav_mobility_app.gym_envs.enums.NetworkDeviceType import NetworkDeviceType
-from uav_mobility_app.gym_envs.entities.ExtendedNetworkLink import ExtendedNetworkLink
+from network_envs.utils.NetworkJSONParser import parse_json
+from network_envs.enums.NetworkNodeType import NetworkNodeType
+from network_envs.entities.NetworkNode import NetworkNode
+from network_envs.entities.NetworkLink import NetworkLink
+from network_envs.entities.NetworkDevice import NetworkDevice
+from network_envs.enums.NetworkDeviceType import NetworkDeviceType
+from network_envs.entities.ExtendedNetworkLink import ExtendedNetworkLink
 import random
+from pathlib import Path
+
 
 class Network(nx.DiGraph):
     """This class represents the Network as a directed graph. It is in
@@ -14,16 +16,16 @@ class Network(nx.DiGraph):
     """
 
 
-    def __init__(self, incoming_graph_data: dict, **attr):
+    def __init__(self, configuration: Path, **attr):
         """Create the network from a dictionary of NetworkNodes,
         NetworkLinks and NetworkDevices.
 
         Args:
-            incoming_graph_data (dict): A dictionary of NetworkNodes,
-            NetworkLinks and NetworkDevices.
+            configuration (Path): The file that contains the
+            configuration for the enviroment.
         """
         super().__init__(None, **attr)
-        network_data = parse_json(incoming_graph_data)
+        network_data = parse_json(configuration)
         self._network_nodes: list[NetworkNode] = network_data["network_nodes"]
         self._gateways: list[NetworkNode] = []
         self._switches: list[NetworkNode] = []
@@ -45,7 +47,7 @@ class Network(nx.DiGraph):
             elif (d.device_type == NetworkDeviceType.CAM):
                 self._cams.append(d)
         self._network_links: list[NetworkLink] =\
-            [ d[2] for d in network_data["network_links"]]
+            [d[2] for d in network_data["network_links"]]
         network_links = []
         for l in network_data["network_links"]:
             network_links.append((l[0], l[1], {"data": l[2]}))

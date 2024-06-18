@@ -1,5 +1,5 @@
-from uav_mobility_app.gym_envs.entities.NetworkLink import NetworkLink
-from uav_mobility_app.gym_envs.entities.NetworkNode import NetworkNode
+from network_envs.entities.NetworkLink import NetworkLink
+from network_envs.entities.NetworkNode import NetworkNode
 
 """ExtendedNetworkLink is an alias to tackle the NetworkX way of dealing
 with edges. It represents a pair the nodes (NetworkNodes) that compose

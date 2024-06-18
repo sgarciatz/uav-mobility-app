@@ -1,6 +1,6 @@
 import unittest
-from uav_mobility_app.gym_envs.entities.NetworkNode import NetworkNode
-from uav_mobility_app.gym_envs.enums.NetworkNodeType import NetworkNodeType
+from uav_mobility_app.network_envs.entities.NetworkNode import NetworkNode
+from uav_mobility_app.network_envs.enums.NetworkNodeType import NetworkNodeType
 
 
 class test_NetworkNode(unittest.TestCase):

@@ -2,29 +2,41 @@ from typing import Any
 import random
 import gymnasium as gym
 import numpy as np
+from pathlib import Path
 from gymnasium import spaces
 from gymnasium.spaces.utils import flatten_space
-from uav_mobility_app.gym_envs.entities.Network import Network
-from uav_mobility_app.gym_envs.entities.Network import ExtendedNetworkLink
-from uav_mobility_app.gym_envs.entities.NetworkDevice import NetworkDevice
-from uav_mobility_app.gym_envs.entities.NetworkNode import NetworkNode
-from uav_mobility_app.gym_envs.entities.NetworkLink import NetworkLink
-from uav_mobility_app.gym_envs.enums.NetworkNodeType import NetworkNodeType
+from network_envs.entities.Network import Network
+from network_envs.entities.Network import ExtendedNetworkLink
+from network_envs.entities.NetworkDevice import NetworkDevice
+from network_envs.entities.NetworkNode import NetworkNode
+from network_envs.entities.NetworkLink import NetworkLink
+from network_envs.enums.NetworkNodeType import NetworkNodeType
 
 
 class NetworkEnv(gym.Env):
 
 
     def __init__(self,
-                 network: Network,
-                 n_actions: int= 3,
+                 configuration: Path,
+                 n_actions: int = 3,
+                 hard_reset_period: int = 100,
                  render_mode:str = None) -> None:
-        """_summary_
+        """Initializaes the NetworkEnv. This method is designed to be
+        callable by gym.make(...).
 
         Args:
-            render_mode (str, optional): _description_. Defaults to None.
+            configuration (Path): The file that contains the
+            configuration for the enviroment.
+            n_actions (int): The number of links that the agent can
+            choose at a given step. Defaults to 3.
+            hard_reset_period (int): The number of episodes to carry out
+            before performing a hard reset. Defaults to 100.
+            render_mode (str, optional): No use for this feature yet.
+            Defaults to None.
         """
-        self._network: Network = network
+        self._hard_reset_period = hard_reset_period
+        self._hard_reset_counter = 1
+        self._network: Network = Network(configuration=configuration)
         self.action_space = spaces.Discrete(n_actions,
                                             start=0)
 
@@ -45,7 +57,9 @@ class NetworkEnv(gym.Env):
               *,
               seed: int | None = None,
               options: dict | None = None) -> tuple:
-        """Resets the enviroment.
+        """Resets the enviroment. If enough episodes have been carried
+        out, a hard reset shall be executed, which deallocates all
+        resources and set all device to inactive.
 
         Args:
             seed (int | None, optional): The seed to provide
@@ -58,13 +72,14 @@ class NetworkEnv(gym.Env):
         """
         if (seed != None):
             random.seed(seed)
-        if (isinstance(options, dict)):
-            if ("hard_reset" in options):
-                if (options["hard_reset"] == True):
-                    for d in self._network.network_devices:
-                        dev_path = self._network.get_path_device(d)
-                        self._network.free_path_device(d, dev_path)
-                        d.is_active = False
+        if (self._hard_reset_counter >= self._hard_reset_period):
+            self._hard_reset_counter = 1
+            for d in self._network.network_devices:
+                dev_path = self._network.get_path_device(d)
+                self._network.free_path_device(d, dev_path)
+                d.is_active = False
+        else:
+            self._hard_reset_counter += 1
         uav_or_cam = random.randint(0, 1)
         if (uav_or_cam == 0):
             self._dev = self._network.generate_cam_event()
@@ -194,17 +209,3 @@ class NetworkEnv(gym.Env):
             for _ in range(remainin_links):
                 next_links.append((0,0,0))
         return next_links
-
-if __name__ == "__main__":
-    from pathlib import Path
-    import matplotlib.pyplot as plt
-    my_net = Network(Path("/home/santiago/Documents/Trabajo/Workspace/uav-mobility-app/input/network_00.json"))
-    my_net_env = NetworkEnv(my_net)
-    for _ in range(20):
-        obs, _ = my_net_env.reset()
-        obs, reward, terminated, _, info = my_net_env.step(0)
-        obs, reward, terminated, _, info = my_net_env.step(0)
-        obs, reward, terminated, _, info = my_net_env.step(0)
-
-        my_net.show_network_info()
-        plt.show()

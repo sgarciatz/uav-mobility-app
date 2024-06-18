@@ -1,4 +1,4 @@
-from uav_mobility_app.gym_envs.enums.NetworkNodeType import NetworkNodeType
+from network_envs.enums.NetworkNodeType import NetworkNodeType
 
 
 class NetworkNode(object):

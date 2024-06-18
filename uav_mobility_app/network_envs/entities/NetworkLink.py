@@ -1,5 +1,5 @@
 
-from uav_mobility_app.gym_envs.entities.NetworkDevice import NetworkDevice
+from network_envs.entities.NetworkDevice import NetworkDevice
 import math
 
 class NetworkLink(object):

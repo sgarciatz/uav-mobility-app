@@ -1,8 +1,8 @@
 import unittest
 import math
-from uav_mobility_app.gym_envs.entities.NetworkLink import NetworkLink
-from uav_mobility_app.gym_envs.entities.NetworkDevice import NetworkDevice
-from uav_mobility_app.gym_envs.enums.NetworkDeviceType import NetworkDeviceType
+from uav_mobility_app.network_envs.entities.NetworkLink import NetworkLink
+from uav_mobility_app.network_envs.entities.NetworkDevice import NetworkDevice
+from uav_mobility_app.network_envs.enums.NetworkDeviceType import NetworkDeviceType
 
 
 class test_NetworkLink(unittest.TestCase):

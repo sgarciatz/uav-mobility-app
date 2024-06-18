@@ -1,10 +1,10 @@
 import json
 from pathlib import Path
-from uav_mobility_app.gym_envs.entities.NetworkNode import NetworkNode
-from uav_mobility_app.gym_envs.entities.NetworkLink import NetworkLink
-from uav_mobility_app.gym_envs.entities.NetworkDevice import NetworkDevice
-from uav_mobility_app.gym_envs.enums.NetworkNodeType import NetworkNodeType
-from uav_mobility_app.gym_envs.enums.NetworkDeviceType import NetworkDeviceType
+from network_envs.entities.NetworkNode import NetworkNode
+from network_envs.entities.NetworkLink import NetworkLink
+from network_envs.entities.NetworkDevice import NetworkDevice
+from network_envs.enums.NetworkNodeType import NetworkNodeType
+from network_envs.enums.NetworkDeviceType import NetworkDeviceType
 
 
 def parse_json(file_path: Path) -> dict:

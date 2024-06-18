@@ -1,0 +1,664 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.10.0" />
+<title>uav-mobility-app.uav_mobility_app.network_envs.envs.NetworkEnv API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>uav-mobility-app.uav_mobility_app.network_envs.envs.NetworkEnv</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">from typing import Any
+import random
+import gymnasium as gym
+import numpy as np
+from pathlib import Path
+from gymnasium import spaces
+from gymnasium.spaces.utils import flatten_space
+from network_envs.entities.Network import Network
+from network_envs.entities.Network import ExtendedNetworkLink
+from network_envs.entities.NetworkDevice import NetworkDevice
+from network_envs.entities.NetworkNode import NetworkNode
+from network_envs.entities.NetworkLink import NetworkLink
+from network_envs.enums.NetworkNodeType import NetworkNodeType
+
+
+class NetworkEnv(gym.Env):
+
+
+    def __init__(self,
+                 configuration: Path,
+                 n_actions: int = 3,
+                 hard_reset_period: int = 100,
+                 render_mode:str = None) -&gt; None:
+        &#34;&#34;&#34;Initializaes the NetworkEnv. This method is designed to be
+        callable by gym.make(...).
+
+        Args:
+            configuration (Path): The file that contains the
+            configuration for the enviroment.
+            n_actions (int): The number of links that the agent can
+            choose at a given step. Defaults to 3.
+            hard_reset_period (int): The number of episodes to carry out
+            before performing a hard reset. Defaults to 100.
+            render_mode (str, optional): No use for this feature yet.
+            Defaults to None.
+        &#34;&#34;&#34;
+        self._hard_reset_period = hard_reset_period
+        self._hard_reset_counter = 1
+        self._network: Network = Network(configuration=configuration)
+        self.action_space = spaces.Discrete(n_actions,
+                                            start=0)
+
+        self._obs_space = spaces.Box(low=np.array([0.0, 0.0, 0.0]),
+                                      high=np.array([1.0+1.0,
+                                                     20.0+1.0,
+                                                     1000.0+1.0]),
+                                      shape=(3,))
+        self.observation_space =\
+            spaces.Tuple((self._obs_space for _ in range(n_actions)))
+        self.observation_space = flatten_space(self.observation_space)
+        self._dev: NetworkDevice = None
+        self._path: list[tuple[NetworkNode,
+                               NetworkNode,
+                               dict[str, NetworkDevice]]] = []
+
+    def reset(self,
+              *,
+              seed: int | None = None,
+              options: dict | None = None) -&gt; tuple:
+        &#34;&#34;&#34;Resets the enviroment. If enough episodes have been carried
+        out, a hard reset shall be executed, which deallocates all
+        resources and set all device to inactive.
+
+        Args:
+            seed (int | None, optional): The seed to provide
+            reproducibility. Defaults to None.
+            options (dict[str, Any] | None, optional): No use for
+            options yet. Defaults to None.
+
+        Returns:
+            tuple: The observations and additional info.
+        &#34;&#34;&#34;
+        if (seed != None):
+            random.seed(seed)
+        if (self._hard_reset_counter &gt;= self._hard_reset_period):
+            self._hard_reset_counter = 1
+            for d in self._network.network_devices:
+                dev_path = self._network.get_path_device(d)
+                self._network.free_path_device(d, dev_path)
+                d.is_active = False
+        else:
+            self._hard_reset_counter += 1
+        uav_or_cam = random.randint(0, 1)
+        if (uav_or_cam == 0):
+            self._dev = self._network.generate_cam_event()
+        else:
+            self._dev = self._network.generate_uav_event()
+        self._path = []
+        link= list(self._network.out_edges(self._dev, data=True))[0]
+        self._path.append(link)
+        obs = self._get_obs()
+        info = self._get_info()
+        return obs, info
+
+    def step(self, action: Any) -&gt; tuple:
+        &#34;&#34;&#34;Performs and action in the current state and transitions into
+        a new state.
+
+        Args:
+            action (Any): The action to perform
+
+        Returns:
+            tuple: The observations and additional info.
+        &#34;&#34;&#34;
+
+        # Based on the action, select the corresponding path
+        next_link = self._get_next_links()[action]
+        dst_node: NetworkNode = next_link[1]
+        terminated = False
+        reward = 0
+        # Check if a &#34;false&#34; NetworkLink is selected
+        if (isinstance(dst_node, NetworkNode)):
+            self._path.append(next_link)
+        # Check if we are in a terminal state
+            if (dst_node.node_type == NetworkNodeType.GW):
+                reward = self._get_reward()
+                terminated = True
+                #TODO Allocate resources for the path
+                path: list[NetworkLink] = []
+                for (_, _, l) in self._path:
+                    path.append(l[&#34;data&#34;])
+                self._network.assign_path_to_device(self._dev, path)
+        # print(&#34;SANTIAGO&#34;)
+        # for l in self._get_next_links():
+        #     print(l[0])
+        #     print(l[1])
+        #     print(l[2])
+        # print(&#34;GARCIA GIL&#34;)
+
+        obs = self._get_obs()
+        info = self._get_info()
+        return obs, reward, terminated, False, info
+
+    def _get_info(self) -&gt; dict:
+        &#34;&#34;&#34;Get detailed information about the environment&#39;s current
+        state.
+
+        Returns:
+            dict: The information about the environment&#39;s current
+            state.
+        &#34;&#34;&#34;
+        return {}
+
+    def _get_obs(self):
+        &#34;&#34;&#34;Get the information that is observable by the agents about
+        the environment&#39;s current state.
+
+        Returns:
+            dict: The information that is observable by the agents about
+        the environment&#39;s current state.
+        &#34;&#34;&#34;
+        # Get all the possible links
+        next_links = self._get_next_links()
+        observations = []
+        for (_, _, l) in next_links:
+            if (isinstance(l, dict)):
+                link: NetworkLink = l[&#34;data&#34;]
+                c = 1.0
+                if (self._dev in link.routed_flows):
+                    c = 0.0
+                l = link.delay
+                t = link.available_throughput
+            else:
+                c = self._obs_space.high[0]
+                l = self._obs_space.high[1]
+                t = self._obs_space.low[2]
+            observations.append([c,l,t])
+        remaining_links = len(observations) &lt; self.action_space.n
+        if (remaining_links &gt; 0):
+            for _ in range(remaining_links):
+                observations.append([self._obs_space.low[0],
+                                     self._obs_space.low[1],
+                                     self._obs_space.low[2]])
+        observations.sort(key=lambda obs: (obs[0],
+                                           obs[1],
+                                           self._obs_space.high[2] - obs[2]))
+        return np.array(observations, dtype=np.float64)
+
+    def _get_reward(self):
+        &#34;&#34;&#34;Get the reward associated to the actions carried out during
+        the episode. It is calculated as the sum of the number of
+        changes scaled to [0, 1] and the marginal delay, also scaled.
+        &#34;&#34;&#34;
+        delay = 0
+        changes = 0
+        for (u, v, l) in self._path:
+            l: NetworkLink = l[&#34;data&#34;]
+            delay += l.delay
+            if (self._dev not in l.routed_flows):
+                changes += 1
+        delay = (self._dev.delay_req - delay) / self._dev.delay_req
+        changes = (1 - changes / len(self._path))
+        reward = changes * 0.7 + delay * 0.3
+        return reward
+
+    def _get_next_links(self) -&gt; list[ExtendedNetworkLink]:
+        &#34;&#34;&#34;Return the self.actions next edges that lead to the gateway.
+        To this end, all the possible links are orderded and filtered.
+        If there are less than self._actions, the remaining one are
+        padded (action masking).
+
+        Returns:
+            list[ExtendedNetworkLink]: The possible next NetworkLink
+            that may be chosen (padded if needed).
+        &#34;&#34;&#34;
+        next_links = self._network.get_next_link(self._path[-1])
+        remainin_links = self.action_space.n - len(next_links)
+        if (remainin_links &gt; 0):
+            for _ in range(remainin_links):
+                next_links.append((0,0,0))
+        return next_links</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="uav-mobility-app.uav_mobility_app.network_envs.envs.NetworkEnv.NetworkEnv"><code class="flex name class">
+<span>class <span class="ident">NetworkEnv</span></span>
+<span>(</span><span>configuration: pathlib.Path, n_actions: int = 3, hard_reset_period: int = 100, render_mode: str = None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>The main Gymnasium class for implementing Reinforcement Learning Agents environments.</p>
+<p>The class encapsulates an environment with arbitrary behind-the-scenes dynamics through the :meth:<code>step</code> and :meth:<code>reset</code> functions.
+An environment can be partially or fully observed by single agents. For multi-agent environments, see PettingZoo.</p>
+<p>The main API methods that users of this class need to know are:</p>
+<ul>
+<li>:meth:<code>step</code> - Updates an environment with actions returning the next agent observation, the reward for taking that actions,
+if the environment has terminated or truncated due to the latest action and information from the environment about the step, i.e. metrics, debug info.</li>
+<li>:meth:<code>reset</code> - Resets the environment to an initial state, required before calling step.
+Returns the first agent observation for an episode and information, i.e. metrics, debug info.</li>
+<li>:meth:<code>render</code> - Renders the environments to help visualise what the agent see, examples modes are "human", "rgb_array", "ansi" for text.</li>
+<li>:meth:<code>close</code> - Closes the environment, important when external software is used, i.e. pygame for rendering, databases</li>
+</ul>
+<p>Environments have additional attributes for users to understand the implementation</p>
+<ul>
+<li>:attr:<code>action_space</code> - The Space object corresponding to valid actions, all valid actions should be contained within the space.</li>
+<li>:attr:<code>observation_space</code> - The Space object corresponding to valid observations, all valid observations should be contained within the space.</li>
+<li>:attr:<code>reward_range</code> - A tuple corresponding to the minimum and maximum possible rewards for an agent over an episode.
+The default reward range is set to :math:<code>(-\infty,+\infty)</code>.</li>
+<li>:attr:<code>spec</code> - An environment spec that contains the information used to initialize the environment from :meth:<code>gymnasium.make</code></li>
+<li>:attr:<code>metadata</code> - The metadata of the environment, i.e. render modes, render fps</li>
+<li>:attr:<code>np_random</code> - The random number generator for the environment. This is automatically assigned during
+<code>super().reset(seed=seed)</code> and when assessing <code>self.np_random</code>.</li>
+</ul>
+<div class="admonition seealso">
+<p class="admonition-title">Seealso:&ensp;For modifying or extending environments use the :py:class:<code>gymnasium.Wrapper</code> class</p>
+</div>
+<h2 id="note">Note</h2>
+<p>To get reproducible sampling of actions, a seed can be set with <code>env.action_space.seed(123)</code>.</p>
+<p>Initializaes the NetworkEnv. This method is designed to be
+callable by gym.make(&hellip;).</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>configuration</code></strong> :&ensp;<code>Path</code></dt>
+<dd>The file that contains the</dd>
+<dt>configuration for the enviroment.</dt>
+<dt><strong><code>n_actions</code></strong> :&ensp;<code>int</code></dt>
+<dd>The number of links that the agent can</dd>
+<dt>choose at a given step. Defaults to 3.</dt>
+<dt><strong><code>hard_reset_period</code></strong> :&ensp;<code>int</code></dt>
+<dd>The number of episodes to carry out</dd>
+<dt>before performing a hard reset. Defaults to 100.</dt>
+<dt><strong><code>render_mode</code></strong> :&ensp;<code>str</code>, optional</dt>
+<dd>No use for this feature yet.</dd>
+</dl>
+<p>Defaults to None.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class NetworkEnv(gym.Env):
+
+
+    def __init__(self,
+                 configuration: Path,
+                 n_actions: int = 3,
+                 hard_reset_period: int = 100,
+                 render_mode:str = None) -&gt; None:
+        &#34;&#34;&#34;Initializaes the NetworkEnv. This method is designed to be
+        callable by gym.make(...).
+
+        Args:
+            configuration (Path): The file that contains the
+            configuration for the enviroment.
+            n_actions (int): The number of links that the agent can
+            choose at a given step. Defaults to 3.
+            hard_reset_period (int): The number of episodes to carry out
+            before performing a hard reset. Defaults to 100.
+            render_mode (str, optional): No use for this feature yet.
+            Defaults to None.
+        &#34;&#34;&#34;
+        self._hard_reset_period = hard_reset_period
+        self._hard_reset_counter = 1
+        self._network: Network = Network(configuration=configuration)
+        self.action_space = spaces.Discrete(n_actions,
+                                            start=0)
+
+        self._obs_space = spaces.Box(low=np.array([0.0, 0.0, 0.0]),
+                                      high=np.array([1.0+1.0,
+                                                     20.0+1.0,
+                                                     1000.0+1.0]),
+                                      shape=(3,))
+        self.observation_space =\
+            spaces.Tuple((self._obs_space for _ in range(n_actions)))
+        self.observation_space = flatten_space(self.observation_space)
+        self._dev: NetworkDevice = None
+        self._path: list[tuple[NetworkNode,
+                               NetworkNode,
+                               dict[str, NetworkDevice]]] = []
+
+    def reset(self,
+              *,
+              seed: int | None = None,
+              options: dict | None = None) -&gt; tuple:
+        &#34;&#34;&#34;Resets the enviroment. If enough episodes have been carried
+        out, a hard reset shall be executed, which deallocates all
+        resources and set all device to inactive.
+
+        Args:
+            seed (int | None, optional): The seed to provide
+            reproducibility. Defaults to None.
+            options (dict[str, Any] | None, optional): No use for
+            options yet. Defaults to None.
+
+        Returns:
+            tuple: The observations and additional info.
+        &#34;&#34;&#34;
+        if (seed != None):
+            random.seed(seed)
+        if (self._hard_reset_counter &gt;= self._hard_reset_period):
+            self._hard_reset_counter = 1
+            for d in self._network.network_devices:
+                dev_path = self._network.get_path_device(d)
+                self._network.free_path_device(d, dev_path)
+                d.is_active = False
+        else:
+            self._hard_reset_counter += 1
+        uav_or_cam = random.randint(0, 1)
+        if (uav_or_cam == 0):
+            self._dev = self._network.generate_cam_event()
+        else:
+            self._dev = self._network.generate_uav_event()
+        self._path = []
+        link= list(self._network.out_edges(self._dev, data=True))[0]
+        self._path.append(link)
+        obs = self._get_obs()
+        info = self._get_info()
+        return obs, info
+
+    def step(self, action: Any) -&gt; tuple:
+        &#34;&#34;&#34;Performs and action in the current state and transitions into
+        a new state.
+
+        Args:
+            action (Any): The action to perform
+
+        Returns:
+            tuple: The observations and additional info.
+        &#34;&#34;&#34;
+
+        # Based on the action, select the corresponding path
+        next_link = self._get_next_links()[action]
+        dst_node: NetworkNode = next_link[1]
+        terminated = False
+        reward = 0
+        # Check if a &#34;false&#34; NetworkLink is selected
+        if (isinstance(dst_node, NetworkNode)):
+            self._path.append(next_link)
+        # Check if we are in a terminal state
+            if (dst_node.node_type == NetworkNodeType.GW):
+                reward = self._get_reward()
+                terminated = True
+                #TODO Allocate resources for the path
+                path: list[NetworkLink] = []
+                for (_, _, l) in self._path:
+                    path.append(l[&#34;data&#34;])
+                self._network.assign_path_to_device(self._dev, path)
+        # print(&#34;SANTIAGO&#34;)
+        # for l in self._get_next_links():
+        #     print(l[0])
+        #     print(l[1])
+        #     print(l[2])
+        # print(&#34;GARCIA GIL&#34;)
+
+        obs = self._get_obs()
+        info = self._get_info()
+        return obs, reward, terminated, False, info
+
+    def _get_info(self) -&gt; dict:
+        &#34;&#34;&#34;Get detailed information about the environment&#39;s current
+        state.
+
+        Returns:
+            dict: The information about the environment&#39;s current
+            state.
+        &#34;&#34;&#34;
+        return {}
+
+    def _get_obs(self):
+        &#34;&#34;&#34;Get the information that is observable by the agents about
+        the environment&#39;s current state.
+
+        Returns:
+            dict: The information that is observable by the agents about
+        the environment&#39;s current state.
+        &#34;&#34;&#34;
+        # Get all the possible links
+        next_links = self._get_next_links()
+        observations = []
+        for (_, _, l) in next_links:
+            if (isinstance(l, dict)):
+                link: NetworkLink = l[&#34;data&#34;]
+                c = 1.0
+                if (self._dev in link.routed_flows):
+                    c = 0.0
+                l = link.delay
+                t = link.available_throughput
+            else:
+                c = self._obs_space.high[0]
+                l = self._obs_space.high[1]
+                t = self._obs_space.low[2]
+            observations.append([c,l,t])
+        remaining_links = len(observations) &lt; self.action_space.n
+        if (remaining_links &gt; 0):
+            for _ in range(remaining_links):
+                observations.append([self._obs_space.low[0],
+                                     self._obs_space.low[1],
+                                     self._obs_space.low[2]])
+        observations.sort(key=lambda obs: (obs[0],
+                                           obs[1],
+                                           self._obs_space.high[2] - obs[2]))
+        return np.array(observations, dtype=np.float64)
+
+    def _get_reward(self):
+        &#34;&#34;&#34;Get the reward associated to the actions carried out during
+        the episode. It is calculated as the sum of the number of
+        changes scaled to [0, 1] and the marginal delay, also scaled.
+        &#34;&#34;&#34;
+        delay = 0
+        changes = 0
+        for (u, v, l) in self._path:
+            l: NetworkLink = l[&#34;data&#34;]
+            delay += l.delay
+            if (self._dev not in l.routed_flows):
+                changes += 1
+        delay = (self._dev.delay_req - delay) / self._dev.delay_req
+        changes = (1 - changes / len(self._path))
+        reward = changes * 0.7 + delay * 0.3
+        return reward
+
+    def _get_next_links(self) -&gt; list[ExtendedNetworkLink]:
+        &#34;&#34;&#34;Return the self.actions next edges that lead to the gateway.
+        To this end, all the possible links are orderded and filtered.
+        If there are less than self._actions, the remaining one are
+        padded (action masking).
+
+        Returns:
+            list[ExtendedNetworkLink]: The possible next NetworkLink
+            that may be chosen (padded if needed).
+        &#34;&#34;&#34;
+        next_links = self._network.get_next_link(self._path[-1])
+        remainin_links = self.action_space.n - len(next_links)
+        if (remainin_links &gt; 0):
+            for _ in range(remainin_links):
+                next_links.append((0,0,0))
+        return next_links</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>gymnasium.core.Env</li>
+<li>typing.Generic</li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="uav-mobility-app.uav_mobility_app.network_envs.envs.NetworkEnv.NetworkEnv.reset"><code class="name flex">
+<span>def <span class="ident">reset</span></span>(<span>self, *, seed: int | None = None, options: dict | None = None) ‑> tuple</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Resets the enviroment. If enough episodes have been carried
+out, a hard reset shall be executed, which deallocates all
+resources and set all device to inactive.</p>
+<h2 id="args">Args</h2>
+<p>seed (int | None, optional): The seed to provide
+reproducibility. Defaults to None.
+options (dict[str, Any] | None, optional): No use for
+options yet. Defaults to None.</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>tuple</code></dt>
+<dd>The observations and additional info.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def reset(self,
+          *,
+          seed: int | None = None,
+          options: dict | None = None) -&gt; tuple:
+    &#34;&#34;&#34;Resets the enviroment. If enough episodes have been carried
+    out, a hard reset shall be executed, which deallocates all
+    resources and set all device to inactive.
+
+    Args:
+        seed (int | None, optional): The seed to provide
+        reproducibility. Defaults to None.
+        options (dict[str, Any] | None, optional): No use for
+        options yet. Defaults to None.
+
+    Returns:
+        tuple: The observations and additional info.
+    &#34;&#34;&#34;
+    if (seed != None):
+        random.seed(seed)
+    if (self._hard_reset_counter &gt;= self._hard_reset_period):
+        self._hard_reset_counter = 1
+        for d in self._network.network_devices:
+            dev_path = self._network.get_path_device(d)
+            self._network.free_path_device(d, dev_path)
+            d.is_active = False
+    else:
+        self._hard_reset_counter += 1
+    uav_or_cam = random.randint(0, 1)
+    if (uav_or_cam == 0):
+        self._dev = self._network.generate_cam_event()
+    else:
+        self._dev = self._network.generate_uav_event()
+    self._path = []
+    link= list(self._network.out_edges(self._dev, data=True))[0]
+    self._path.append(link)
+    obs = self._get_obs()
+    info = self._get_info()
+    return obs, info</code></pre>
+</details>
+</dd>
+<dt id="uav-mobility-app.uav_mobility_app.network_envs.envs.NetworkEnv.NetworkEnv.step"><code class="name flex">
+<span>def <span class="ident">step</span></span>(<span>self, action: Any) ‑> tuple</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Performs and action in the current state and transitions into
+a new state.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>action</code></strong> :&ensp;<code>Any</code></dt>
+<dd>The action to perform</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>tuple</code></dt>
+<dd>The observations and additional info.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def step(self, action: Any) -&gt; tuple:
+    &#34;&#34;&#34;Performs and action in the current state and transitions into
+    a new state.
+
+    Args:
+        action (Any): The action to perform
+
+    Returns:
+        tuple: The observations and additional info.
+    &#34;&#34;&#34;
+
+    # Based on the action, select the corresponding path
+    next_link = self._get_next_links()[action]
+    dst_node: NetworkNode = next_link[1]
+    terminated = False
+    reward = 0
+    # Check if a &#34;false&#34; NetworkLink is selected
+    if (isinstance(dst_node, NetworkNode)):
+        self._path.append(next_link)
+    # Check if we are in a terminal state
+        if (dst_node.node_type == NetworkNodeType.GW):
+            reward = self._get_reward()
+            terminated = True
+            #TODO Allocate resources for the path
+            path: list[NetworkLink] = []
+            for (_, _, l) in self._path:
+                path.append(l[&#34;data&#34;])
+            self._network.assign_path_to_device(self._dev, path)
+    # print(&#34;SANTIAGO&#34;)
+    # for l in self._get_next_links():
+    #     print(l[0])
+    #     print(l[1])
+    #     print(l[2])
+    # print(&#34;GARCIA GIL&#34;)
+
+    obs = self._get_obs()
+    info = self._get_info()
+    return obs, reward, terminated, False, info</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="uav-mobility-app.uav_mobility_app.network_envs.envs" href="index.html">uav-mobility-app.uav_mobility_app.network_envs.envs</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="uav-mobility-app.uav_mobility_app.network_envs.envs.NetworkEnv.NetworkEnv" href="#uav-mobility-app.uav_mobility_app.network_envs.envs.NetworkEnv.NetworkEnv">NetworkEnv</a></code></h4>
+<ul class="">
+<li><code><a title="uav-mobility-app.uav_mobility_app.network_envs.envs.NetworkEnv.NetworkEnv.reset" href="#uav-mobility-app.uav_mobility_app.network_envs.envs.NetworkEnv.NetworkEnv.reset">reset</a></code></li>
+<li><code><a title="uav-mobility-app.uav_mobility_app.network_envs.envs.NetworkEnv.NetworkEnv.step" href="#uav-mobility-app.uav_mobility_app.network_envs.envs.NetworkEnv.NetworkEnv.step">step</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+</footer>
+</body>
+</html>

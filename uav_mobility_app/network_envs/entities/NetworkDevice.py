@@ -1,4 +1,4 @@
-from uav_mobility_app.gym_envs.enums.NetworkDeviceType import NetworkDeviceType
+from network_envs.enums.NetworkDeviceType import NetworkDeviceType
 
 class NetworkDevice(object):
 
@@ -56,7 +56,7 @@ class NetworkDevice(object):
         return self._device_name
 
     @property
-    def device_type(self) -> float:
+    def device_type(self) -> NetworkDeviceType:
         """Returns the NetworkDevice's type.
 
         Returns:
@@ -108,7 +108,7 @@ class NetworkDevice(object):
         Returns:
             bool: Wheter the position changed or not.
         """
-        if (self.device_type == NetworkDeviceType.CAM):
+        if (self._device_type.value == NetworkDeviceType.CAM.value):
             return False
         self._position = new_position
         return True
@@ -141,6 +141,7 @@ class NetworkDevice(object):
         """
         str_repr = (
             f"Device {self._device_name} ({self._device_id})"
+            f"\n\tIs active?: {self._is_active}"
             f"\n\tDevice type: {self._device_type.name}"
             f"\n\tRequired trhoughput: {self._throughput_req} Gb/s"
             f"\n\tMax. acceptable delay: {self._delay_req} ms"
