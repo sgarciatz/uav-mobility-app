@@ -46,7 +46,8 @@ def parse_json(file_path: Path) -&gt; dict:
         dict: The dict with all the NetworkDevices, NetworkNodes and
         NetworkLinks.
     &#34;&#34;&#34;
-    input_data = json.load(open(file_path))
+    with open(file_path) as file_path:
+        input_data = json.load(file_path)
     network_nodes: list[NetworkNode] = []
     for nd in input_data[&#34;network_nodes&#34;]:
         network_node = NetworkNode(nd[&#34;node_id&#34;],
@@ -127,7 +128,8 @@ NetworkNodes and NetworkLinks.</p>
         dict: The dict with all the NetworkDevices, NetworkNodes and
         NetworkLinks.
     &#34;&#34;&#34;
-    input_data = json.load(open(file_path))
+    with open(file_path) as file_path:
+        input_data = json.load(file_path)
     network_nodes: list[NetworkNode] = []
     for nd in input_data[&#34;network_nodes&#34;]:
         network_node = NetworkNode(nd[&#34;node_id&#34;],

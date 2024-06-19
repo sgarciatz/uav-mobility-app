@@ -569,7 +569,7 @@
             "device_id": 200,
             "name": "uav_00",
             "device_type": "UAV",
-            "delay_req": 10.0,
+            "delay_req": 20.0,
             "throughput_req": 100.0,
             "position": [0, 0]
         },
@@ -577,7 +577,7 @@
             "device_id": 201,
             "name": "uav_01",
             "device_type": "UAV",
-            "delay_req": 10.0,
+            "delay_req": 20.0,
             "throughput_req": 100.0,
             "position": [0, 2]
         },
@@ -585,7 +585,7 @@
             "device_id": 202,
             "name": "uav_02",
             "device_type": "UAV",
-            "delay_req": 10.0,
+            "delay_req": 20.0,
             "throughput_req": 100.0,
             "position": [0, 4]
         },
@@ -593,7 +593,7 @@
             "device_id": 203,
             "name": "uav_03",
             "device_type": "UAV",
-            "delay_req": 10.0,
+            "delay_req": 20.0,
             "throughput_req": 100.0,
             "position": [0, 6]
         },
@@ -601,7 +601,7 @@
             "device_id": 204,
             "name": "uav_04",
             "device_type": "UAV",
-            "delay_req": 10.0,
+            "delay_req": 20.0,
             "throughput_req": 100.0,
             "position": [0, 8]
         },
@@ -609,7 +609,7 @@
             "device_id": 205,
             "name": "uav_05",
             "device_type": "UAV",
-            "delay_req": 10.0,
+            "delay_req": 20.0,
             "throughput_req": 100.0,
             "position": [0, 10]
         },
@@ -617,7 +617,7 @@
             "device_id": 206,
             "name": "cam_00",
             "device_type": "CAM",
-            "delay_req": 5.0,
+            "delay_req": 20.0,
             "throughput_req": 100.0,
             "position": [0, 1]
         },
@@ -625,7 +625,7 @@
             "device_id": 207,
             "name": "cam_01",
             "device_type": "CAM",
-            "delay_req": 5.0,
+            "delay_req": 20.0,
             "throughput_req": 100.0,
             "position": [0, 3]
         },
@@ -633,7 +633,7 @@
             "device_id": 208,
             "name": "cam_02",
             "device_type": "CAM",
-            "delay_req": 10.0,
+            "delay_req": 20.0,
             "throughput_req": 100.0,
             "position": [0, 5]
         },
@@ -641,7 +641,7 @@
             "device_id": 209,
             "name": "cam_03",
             "device_type": "CAM",
-            "delay_req": 5.0,
+            "delay_req": 20.0,
             "throughput_req": 100.0,
             "position": [0, 7]
         },
@@ -649,7 +649,7 @@
             "device_id": 210,
             "name": "cam_04",
             "device_type": "CAM",
-            "delay_req": 5.0,
+            "delay_req": 20.0,
             "throughput_req": 100.0,
             "position": [0, 9]
         },
@@ -657,7 +657,7 @@
             "device_id": 211,
             "name": "cam_05",
             "device_type": "CAM",
-            "delay_req": 5.0,
+            "delay_req": 20.0,
             "throughput_req": 100.0,
             "position": [0, 11]
         }

@@ -43,7 +43,7 @@ class NetworkEnv(gym.Env):
         self._obs_space = spaces.Box(low=np.array([0.0, 0.0, 0.0]),
                                       high=np.array([1.0+1.0,
                                                      20.0+1.0,
-                                                     1000.0+1.0]),
+                                                     1000.0]),
                                       shape=(3,))
         self.observation_space =\
             spaces.Tuple((self._obs_space for _ in range(n_actions)))
@@ -81,7 +81,8 @@ class NetworkEnv(gym.Env):
         else:
             self._hard_reset_counter += 1
         uav_or_cam = random.randint(0, 1)
-        if (uav_or_cam == 0):
+        cameras_left = any(c.is_active == False for c in self._network.cams)
+        if (uav_or_cam == 0 and cameras_left):
             self._dev = self._network.generate_cam_event()
         else:
             self._dev = self._network.generate_uav_event()
@@ -120,13 +121,8 @@ class NetworkEnv(gym.Env):
                 for (_, _, l) in self._path:
                     path.append(l["data"])
                 self._network.assign_path_to_device(self._dev, path)
-        # print("SANTIAGO")
-        # for l in self._get_next_links():
-        #     print(l[0])
-        #     print(l[1])
-        #     print(l[2])
-        # print("GARCIA GIL")
-
+        else:
+            reward = -1
         obs = self._get_obs()
         info = self._get_info()
         return obs, reward, terminated, False, info
@@ -174,7 +170,8 @@ class NetworkEnv(gym.Env):
         observations.sort(key=lambda obs: (obs[0],
                                            obs[1],
                                            self._obs_space.high[2] - obs[2]))
-        return np.array(observations, dtype=np.float64)
+        observations: np.ndarray = np.array(observations, dtype=np.float32)
+        return observations[:3][:]
 
     def _get_reward(self):
         """Get the reward associated to the actions carried out during
@@ -186,11 +183,12 @@ class NetworkEnv(gym.Env):
         for (u, v, l) in self._path:
             l: NetworkLink = l["data"]
             delay += l.delay
-            if (self._dev not in l.routed_flows):
+            if ((self._dev not in l.routed_flows) and
+                (len(l.routed_flows) > 0)):
                 changes += 1
         delay = (self._dev.delay_req - delay) / self._dev.delay_req
         changes = (1 - changes / len(self._path))
-        reward = changes * 0.7 + delay * 0.3
+        reward = changes * 0.9 + delay * 0.1
         return reward
 
     def _get_next_links(self) -> list[ExtendedNetworkLink]:

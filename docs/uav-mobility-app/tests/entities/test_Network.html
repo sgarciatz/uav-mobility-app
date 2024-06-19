@@ -31,9 +31,7 @@ from pathlib import Path
 import json
 from uav_mobility_app.network_envs.entities.NetworkLink import NetworkLink
 from uav_mobility_app.network_envs.entities.NetworkDevice import NetworkDevice
-from uav_mobility_app.network_envs.enums.NetworkDeviceType import NetworkDeviceType
 from uav_mobility_app.network_envs.entities.NetworkNode import NetworkNode
-from uav_mobility_app.network_envs.enums.NetworkNodeType import NetworkNodeType
 from uav_mobility_app.network_envs.entities.Network import Network
 from uav_mobility_app.network_envs.entities.Network import ExtendedNetworkLink
 from uav_mobility_app.network_envs.utils.NetworkJSONParser import parse_json
@@ -45,27 +43,28 @@ class test_Network(unittest.TestCase):
         &#34;&#34;&#34;Checks that the initialization of a Network is consistent.
         &#34;&#34;&#34;
         input_path: Path = Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;)
-        input_data: dict = json.load(open(input_path))
-        n_network_nodes: int = len(input_data[&#34;network_nodes&#34;])
-        n_gws = len(list(filter(
-            lambda network_node: network_node[&#34;node_type&#34;] == &#34;GW&#34;,
-            input_data[&#34;network_nodes&#34;])))
-        n_sws = len(list(filter(
-            lambda network_node: network_node[&#34;node_type&#34;] == &#34;SW&#34;,
-            input_data[&#34;network_nodes&#34;])))
-        n_aps = len(list(filter(
-            lambda network_node: network_node[&#34;node_type&#34;] == &#34;AP&#34;,
-            input_data[&#34;network_nodes&#34;])))
-        n_network_devices: int = len(input_data[&#34;network_devices&#34;])
-        n_network_links: int = len(input_data[&#34;network_links&#34;])
-        net = Network(input_path)
-        self.assertEqual(len(net.nodes),
-                         n_network_devices + n_network_nodes)
-        self.assertEqual(len(net.gateways), n_gws)
-        self.assertEqual(len(net.switches), n_sws)
-        self.assertEqual(len(net.access_points), n_aps)
-        self.assertEqual(len(net.edges),
-                         n_network_links)
+        with open(input_path) as input_file:
+            input_data: dict = json.load(input_file)
+            n_network_nodes: int = len(input_data[&#34;network_nodes&#34;])
+            n_gws = len(list(filter(
+                lambda network_node: network_node[&#34;node_type&#34;] == &#34;GW&#34;,
+                input_data[&#34;network_nodes&#34;])))
+            n_sws = len(list(filter(
+                lambda network_node: network_node[&#34;node_type&#34;] == &#34;SW&#34;,
+                input_data[&#34;network_nodes&#34;])))
+            n_aps = len(list(filter(
+                lambda network_node: network_node[&#34;node_type&#34;] == &#34;AP&#34;,
+                input_data[&#34;network_nodes&#34;])))
+            n_network_devices: int = len(input_data[&#34;network_devices&#34;])
+            n_network_links: int = len(input_data[&#34;network_links&#34;])
+            net = Network(input_path)
+            self.assertEqual(len(net.nodes),
+                            n_network_devices + n_network_nodes)
+            self.assertEqual(len(net.gateways), n_gws)
+            self.assertEqual(len(net.switches), n_sws)
+            self.assertEqual(len(net.access_points), n_aps)
+            self.assertEqual(len(net.edges),
+                            n_network_links)
 
     def test_network_nodes(self):
         &#34;&#34;&#34;Test that the network nodes are consistent w.r.t. the input
@@ -476,27 +475,28 @@ not have a method with the specified name.</p></div>
         &#34;&#34;&#34;Checks that the initialization of a Network is consistent.
         &#34;&#34;&#34;
         input_path: Path = Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;)
-        input_data: dict = json.load(open(input_path))
-        n_network_nodes: int = len(input_data[&#34;network_nodes&#34;])
-        n_gws = len(list(filter(
-            lambda network_node: network_node[&#34;node_type&#34;] == &#34;GW&#34;,
-            input_data[&#34;network_nodes&#34;])))
-        n_sws = len(list(filter(
-            lambda network_node: network_node[&#34;node_type&#34;] == &#34;SW&#34;,
-            input_data[&#34;network_nodes&#34;])))
-        n_aps = len(list(filter(
-            lambda network_node: network_node[&#34;node_type&#34;] == &#34;AP&#34;,
-            input_data[&#34;network_nodes&#34;])))
-        n_network_devices: int = len(input_data[&#34;network_devices&#34;])
-        n_network_links: int = len(input_data[&#34;network_links&#34;])
-        net = Network(input_path)
-        self.assertEqual(len(net.nodes),
-                         n_network_devices + n_network_nodes)
-        self.assertEqual(len(net.gateways), n_gws)
-        self.assertEqual(len(net.switches), n_sws)
-        self.assertEqual(len(net.access_points), n_aps)
-        self.assertEqual(len(net.edges),
-                         n_network_links)
+        with open(input_path) as input_file:
+            input_data: dict = json.load(input_file)
+            n_network_nodes: int = len(input_data[&#34;network_nodes&#34;])
+            n_gws = len(list(filter(
+                lambda network_node: network_node[&#34;node_type&#34;] == &#34;GW&#34;,
+                input_data[&#34;network_nodes&#34;])))
+            n_sws = len(list(filter(
+                lambda network_node: network_node[&#34;node_type&#34;] == &#34;SW&#34;,
+                input_data[&#34;network_nodes&#34;])))
+            n_aps = len(list(filter(
+                lambda network_node: network_node[&#34;node_type&#34;] == &#34;AP&#34;,
+                input_data[&#34;network_nodes&#34;])))
+            n_network_devices: int = len(input_data[&#34;network_devices&#34;])
+            n_network_links: int = len(input_data[&#34;network_links&#34;])
+            net = Network(input_path)
+            self.assertEqual(len(net.nodes),
+                            n_network_devices + n_network_nodes)
+            self.assertEqual(len(net.gateways), n_gws)
+            self.assertEqual(len(net.switches), n_sws)
+            self.assertEqual(len(net.access_points), n_aps)
+            self.assertEqual(len(net.edges),
+                            n_network_links)
 
     def test_network_nodes(self):
         &#34;&#34;&#34;Test that the network nodes are consistent w.r.t. the input
@@ -1202,27 +1202,28 @@ are allocated is returned. The order of NetworksLink is irrelevant.</p></div>
     &#34;&#34;&#34;Checks that the initialization of a Network is consistent.
     &#34;&#34;&#34;
     input_path: Path = Path.cwd().joinpath(&#34;input&#34;, &#34;network_00.json&#34;)
-    input_data: dict = json.load(open(input_path))
-    n_network_nodes: int = len(input_data[&#34;network_nodes&#34;])
-    n_gws = len(list(filter(
-        lambda network_node: network_node[&#34;node_type&#34;] == &#34;GW&#34;,
-        input_data[&#34;network_nodes&#34;])))
-    n_sws = len(list(filter(
-        lambda network_node: network_node[&#34;node_type&#34;] == &#34;SW&#34;,
-        input_data[&#34;network_nodes&#34;])))
-    n_aps = len(list(filter(
-        lambda network_node: network_node[&#34;node_type&#34;] == &#34;AP&#34;,
-        input_data[&#34;network_nodes&#34;])))
-    n_network_devices: int = len(input_data[&#34;network_devices&#34;])
-    n_network_links: int = len(input_data[&#34;network_links&#34;])
-    net = Network(input_path)
-    self.assertEqual(len(net.nodes),
-                     n_network_devices + n_network_nodes)
-    self.assertEqual(len(net.gateways), n_gws)
-    self.assertEqual(len(net.switches), n_sws)
-    self.assertEqual(len(net.access_points), n_aps)
-    self.assertEqual(len(net.edges),
-                     n_network_links)</code></pre>
+    with open(input_path) as input_file:
+        input_data: dict = json.load(input_file)
+        n_network_nodes: int = len(input_data[&#34;network_nodes&#34;])
+        n_gws = len(list(filter(
+            lambda network_node: network_node[&#34;node_type&#34;] == &#34;GW&#34;,
+            input_data[&#34;network_nodes&#34;])))
+        n_sws = len(list(filter(
+            lambda network_node: network_node[&#34;node_type&#34;] == &#34;SW&#34;,
+            input_data[&#34;network_nodes&#34;])))
+        n_aps = len(list(filter(
+            lambda network_node: network_node[&#34;node_type&#34;] == &#34;AP&#34;,
+            input_data[&#34;network_nodes&#34;])))
+        n_network_devices: int = len(input_data[&#34;network_devices&#34;])
+        n_network_links: int = len(input_data[&#34;network_links&#34;])
+        net = Network(input_path)
+        self.assertEqual(len(net.nodes),
+                        n_network_devices + n_network_nodes)
+        self.assertEqual(len(net.gateways), n_gws)
+        self.assertEqual(len(net.switches), n_sws)
+        self.assertEqual(len(net.access_points), n_aps)
+        self.assertEqual(len(net.edges),
+                        n_network_links)</code></pre>
 </details>
 </dd>
 <dt id="uav-mobility-app.tests.entities.test_Network.test_Network.test_network_devices"><code class="name flex">
