@@ -1,3 +1,4 @@
+from typing import Any
 from gymnasium import Wrapper, Env
 from pathlib import Path
 
@@ -26,7 +27,7 @@ class FlattenObservationSpace(Wrapper):
         obs = obs.flatten(order="C")
         return obs, info
 
-    def step(self, action: "Any") -> tuple:
+    def step(self, action: Any) -> tuple:
         """Flattens the observation returned by the subjacent Env.
 
         Args:
