@@ -171,7 +171,7 @@ class NetworkEnv(gym.Env):
                                            obs[1],
                                            self._obs_space.high[2] - obs[2]))
         observations: np.ndarray = np.array(observations, dtype=np.float32)
-        return observations[:3][:]
+        return observations[:self.action_space.n][:]
 
     def _get_reward(self):
         """Get the reward associated to the actions carried out during
