@@ -108,9 +108,6 @@ class NetworkEnv(gym.Env):
         link= list(self._network.out_edges(self._dev, data=True))[0]
         self._path.append(link)
         obs = self._get_obs()
-        print(obs)
-        print()
-        print()
         info = self._get_info()
         return obs, info
 

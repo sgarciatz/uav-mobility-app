@@ -302,6 +302,7 @@ class Network(nx.DiGraph):
         # Choose the UAV to move
         random_uav_index: int = random.randint(0, len(self._uavs) - 1)
         random_uav: NetworkDevice = self._uavs[random_uav_index]
+        random_uav.is_active = True
         # Remove its current NetworkLinks
         in_link = list(self.in_edges(random_uav, data = True))[0]
         current_ap: NetworkDevice = in_link[0]
