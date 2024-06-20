@@ -57,19 +57,19 @@
         },
         {
             "node_id": 9,
-            "name": "ap_04",
+            "name": "ap_03",
             "node_type": "AP",
             "position": [1, 6]
         },
         {
             "node_id": 10,
-            "name": "ap_05",
+            "name": "ap_04",
             "node_type": "AP",
             "position": [1, 8]
         },
         {
             "node_id": 11,
-             "name": "ap_06",
+             "name": "ap_05",
              "node_type": "AP",
              "position": [1, 10]
         }

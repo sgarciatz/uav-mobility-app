@@ -302,7 +302,6 @@ class Network(nx.DiGraph):
         # Choose the UAV to move
         random_uav_index: int = random.randint(0, len(self._uavs) - 1)
         random_uav: NetworkDevice = self._uavs[random_uav_index]
-        random_uav.is_active = True
         # Remove its current NetworkLinks
         in_link = list(self.in_edges(random_uav, data = True))[0]
         current_ap: NetworkDevice = in_link[0]
@@ -317,9 +316,9 @@ class Network(nx.DiGraph):
         in_network_link: NetworkLink = in_link[2]["data"]
         out_network_link: NetworkLink = out_link[2]["data"]
         in_network_link.name =\
-            f"{random_ap.name} | {random_uav.name}"
-        out_network_link.name =\
             f"{random_uav.name} | {random_ap.name}"
+        out_network_link.name =\
+            f"{random_ap.name} | {random_uav.name}"
         self.add_edges_from([(random_uav,
                               random_ap,
                               {"data": in_network_link})])
@@ -348,31 +347,27 @@ class Network(nx.DiGraph):
         random_cam.is_active = True
         return random_cam
 
-    def show_shortest_path_to_gw(self,
-                                 shortest_path: list[NetworkNode]) -> None:
+    def show_path(self, path: list[ExtendedNetworkLink]) -> None:
         """Generates a diagram that shows the NetworkLink (edges) of the
         network that connect a given NetworkDevice with a given
         NetworkNode of NetworkNodeType AP.
 
         Args:
-            dev (NetworkDevice): The NetworkDevice whose path to gw is
-            shown.
-            gw (NetworkNode): The NetworkNode of type AP to which dev's
-            worflow is routed.
+            path (list[ExtendedNetworkLink]): The list of NetworkLinks
+            that the device's request and responses go through to reach
+            the gateway.
         """
-        edges = list(self.edges(data=True))
+        edges: list[ExtendedNetworkLink] = list(self.edges(data=True))
         colors = ["#000000" for _ in list(self.edges(data=True))]
-        for l in shortest_path:
+        for l in path:
             for i, e in enumerate(edges):
-                if (l.id == e[2]["data"].id):
+                if (l[2]["data"].id == e[2]["data"].id):
                     colors[i] = "#FF0000"
-        #self.remove_edges_from(edges)
         positions = {}
         labels = {}
         for n in self.nodes:
             positions[n] = [n.position[1], n.position[0]]
             labels[n] = n.name
-        #colors = ["#CC00CC" for edge in list(self.edges)[::2]]
         nx.draw_networkx_nodes(self,
                                pos=positions)
         nx.draw_networkx_labels(self,
@@ -395,8 +390,6 @@ class Network(nx.DiGraph):
             self,
             pos=positions,
             edge_labels=edge_labels)
-        plt.show()
-        #self.add_edges_from(edges)
 
     def show_network_info(self):
         """Show the information of the network graph. For each node show

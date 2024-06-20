@@ -330,7 +330,6 @@ class Network(nx.DiGraph):
         # Choose the UAV to move
         random_uav_index: int = random.randint(0, len(self._uavs) - 1)
         random_uav: NetworkDevice = self._uavs[random_uav_index]
-        random_uav.is_active = True
         # Remove its current NetworkLinks
         in_link = list(self.in_edges(random_uav, data = True))[0]
         current_ap: NetworkDevice = in_link[0]
@@ -345,9 +344,9 @@ class Network(nx.DiGraph):
         in_network_link: NetworkLink = in_link[2][&#34;data&#34;]
         out_network_link: NetworkLink = out_link[2][&#34;data&#34;]
         in_network_link.name =\
-            f&#34;{random_ap.name} | {random_uav.name}&#34;
-        out_network_link.name =\
             f&#34;{random_uav.name} | {random_ap.name}&#34;
+        out_network_link.name =\
+            f&#34;{random_ap.name} | {random_uav.name}&#34;
         self.add_edges_from([(random_uav,
                               random_ap,
                               {&#34;data&#34;: in_network_link})])
@@ -376,31 +375,27 @@ class Network(nx.DiGraph):
         random_cam.is_active = True
         return random_cam
 
-    def show_shortest_path_to_gw(self,
-                                 shortest_path: list[NetworkNode]) -&gt; None:
+    def show_path(self, path: list[ExtendedNetworkLink]) -&gt; None:
         &#34;&#34;&#34;Generates a diagram that shows the NetworkLink (edges) of the
         network that connect a given NetworkDevice with a given
         NetworkNode of NetworkNodeType AP.
 
         Args:
-            dev (NetworkDevice): The NetworkDevice whose path to gw is
-            shown.
-            gw (NetworkNode): The NetworkNode of type AP to which dev&#39;s
-            worflow is routed.
+            path (list[ExtendedNetworkLink]): The list of NetworkLinks
+            that the device&#39;s request and responses go through to reach
+            the gateway.
         &#34;&#34;&#34;
-        edges = list(self.edges(data=True))
+        edges: list[ExtendedNetworkLink] = list(self.edges(data=True))
         colors = [&#34;#000000&#34; for _ in list(self.edges(data=True))]
-        for l in shortest_path:
+        for l in path:
             for i, e in enumerate(edges):
-                if (l.id == e[2][&#34;data&#34;].id):
+                if (l[2][&#34;data&#34;].id == e[2][&#34;data&#34;].id):
                     colors[i] = &#34;#FF0000&#34;
-        #self.remove_edges_from(edges)
         positions = {}
         labels = {}
         for n in self.nodes:
             positions[n] = [n.position[1], n.position[0]]
             labels[n] = n.name
-        #colors = [&#34;#CC00CC&#34; for edge in list(self.edges)[::2]]
         nx.draw_networkx_nodes(self,
                                pos=positions)
         nx.draw_networkx_labels(self,
@@ -423,8 +418,6 @@ class Network(nx.DiGraph):
             self,
             pos=positions,
             edge_labels=edge_labels)
-        plt.show()
-        #self.add_edges_from(edges)
 
     def show_network_info(self):
         &#34;&#34;&#34;Show the information of the network graph. For each node show
@@ -829,7 +822,6 @@ NetworkLinks and NetworkDevices.</p>
         # Choose the UAV to move
         random_uav_index: int = random.randint(0, len(self._uavs) - 1)
         random_uav: NetworkDevice = self._uavs[random_uav_index]
-        random_uav.is_active = True
         # Remove its current NetworkLinks
         in_link = list(self.in_edges(random_uav, data = True))[0]
         current_ap: NetworkDevice = in_link[0]
@@ -844,9 +836,9 @@ NetworkLinks and NetworkDevices.</p>
         in_network_link: NetworkLink = in_link[2][&#34;data&#34;]
         out_network_link: NetworkLink = out_link[2][&#34;data&#34;]
         in_network_link.name =\
-            f&#34;{random_ap.name} | {random_uav.name}&#34;
-        out_network_link.name =\
             f&#34;{random_uav.name} | {random_ap.name}&#34;
+        out_network_link.name =\
+            f&#34;{random_ap.name} | {random_uav.name}&#34;
         self.add_edges_from([(random_uav,
                               random_ap,
                               {&#34;data&#34;: in_network_link})])
@@ -875,31 +867,27 @@ NetworkLinks and NetworkDevices.</p>
         random_cam.is_active = True
         return random_cam
 
-    def show_shortest_path_to_gw(self,
-                                 shortest_path: list[NetworkNode]) -&gt; None:
+    def show_path(self, path: list[ExtendedNetworkLink]) -&gt; None:
         &#34;&#34;&#34;Generates a diagram that shows the NetworkLink (edges) of the
         network that connect a given NetworkDevice with a given
         NetworkNode of NetworkNodeType AP.
 
         Args:
-            dev (NetworkDevice): The NetworkDevice whose path to gw is
-            shown.
-            gw (NetworkNode): The NetworkNode of type AP to which dev&#39;s
-            worflow is routed.
+            path (list[ExtendedNetworkLink]): The list of NetworkLinks
+            that the device&#39;s request and responses go through to reach
+            the gateway.
         &#34;&#34;&#34;
-        edges = list(self.edges(data=True))
+        edges: list[ExtendedNetworkLink] = list(self.edges(data=True))
         colors = [&#34;#000000&#34; for _ in list(self.edges(data=True))]
-        for l in shortest_path:
+        for l in path:
             for i, e in enumerate(edges):
-                if (l.id == e[2][&#34;data&#34;].id):
+                if (l[2][&#34;data&#34;].id == e[2][&#34;data&#34;].id):
                     colors[i] = &#34;#FF0000&#34;
-        #self.remove_edges_from(edges)
         positions = {}
         labels = {}
         for n in self.nodes:
             positions[n] = [n.position[1], n.position[0]]
             labels[n] = n.name
-        #colors = [&#34;#CC00CC&#34; for edge in list(self.edges)[::2]]
         nx.draw_networkx_nodes(self,
                                pos=positions)
         nx.draw_networkx_labels(self,
@@ -922,8 +910,6 @@ NetworkLinks and NetworkDevices.</p>
             self,
             pos=positions,
             edge_labels=edge_labels)
-        plt.show()
-        #self.add_edges_from(edges)
 
     def show_network_info(self):
         &#34;&#34;&#34;Show the information of the network graph. For each node show
@@ -1348,7 +1334,6 @@ instantaneously.</p>
     # Choose the UAV to move
     random_uav_index: int = random.randint(0, len(self._uavs) - 1)
     random_uav: NetworkDevice = self._uavs[random_uav_index]
-    random_uav.is_active = True
     # Remove its current NetworkLinks
     in_link = list(self.in_edges(random_uav, data = True))[0]
     current_ap: NetworkDevice = in_link[0]
@@ -1363,9 +1348,9 @@ instantaneously.</p>
     in_network_link: NetworkLink = in_link[2][&#34;data&#34;]
     out_network_link: NetworkLink = out_link[2][&#34;data&#34;]
     in_network_link.name =\
-        f&#34;{random_ap.name} | {random_uav.name}&#34;
-    out_network_link.name =\
         f&#34;{random_uav.name} | {random_ap.name}&#34;
+    out_network_link.name =\
+        f&#34;{random_ap.name} | {random_uav.name}&#34;
     self.add_edges_from([(random_uav,
                           random_ap,
                           {&#34;data&#34;: in_network_link})])
@@ -1578,8 +1563,8 @@ its name and for each link, the delay that it introduces.</p></div>
         edge_labels=edge_labels)</code></pre>
 </details>
 </dd>
-<dt id="uav-mobility-app.uav_mobility_app.network_envs.entities.Network.Network.show_shortest_path_to_gw"><code class="name flex">
-<span>def <span class="ident">show_shortest_path_to_gw</span></span>(<span>self, shortest_path: list[network_envs.entities.NetworkNode.NetworkNode]) ‑> None</span>
+<dt id="uav-mobility-app.uav_mobility_app.network_envs.entities.Network.Network.show_path"><code class="name flex">
+<span>def <span class="ident">show_path</span></span>(<span>self, path: list[tuple[network_envs.entities.NetworkNode.NetworkNode, network_envs.entities.NetworkNode.NetworkNode, dict[str, network_envs.entities.NetworkLink.NetworkLink]]]) ‑> None</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Generates a diagram that shows the NetworkLink (edges) of the
@@ -1587,42 +1572,36 @@ network that connect a given NetworkDevice with a given
 NetworkNode of NetworkNodeType AP.</p>
 <h2 id="args">Args</h2>
 <dl>
-<dt><strong><code>dev</code></strong> :&ensp;<code>NetworkDevice</code></dt>
-<dd>The NetworkDevice whose path to gw is</dd>
-<dt>shown.</dt>
-<dt><strong><code>gw</code></strong> :&ensp;<code>NetworkNode</code></dt>
-<dd>The NetworkNode of type AP to which dev's</dd>
+<dt><strong><code>path</code></strong> :&ensp;<code>list[ExtendedNetworkLink]</code></dt>
+<dd>The list of NetworkLinks</dd>
 </dl>
-<p>worflow is routed.</p></div>
+<p>that the device's request and responses go through to reach
+the gateway.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def show_shortest_path_to_gw(self,
-                             shortest_path: list[NetworkNode]) -&gt; None:
+<pre><code class="python">def show_path(self, path: list[ExtendedNetworkLink]) -&gt; None:
     &#34;&#34;&#34;Generates a diagram that shows the NetworkLink (edges) of the
     network that connect a given NetworkDevice with a given
     NetworkNode of NetworkNodeType AP.
 
     Args:
-        dev (NetworkDevice): The NetworkDevice whose path to gw is
-        shown.
-        gw (NetworkNode): The NetworkNode of type AP to which dev&#39;s
-        worflow is routed.
+        path (list[ExtendedNetworkLink]): The list of NetworkLinks
+        that the device&#39;s request and responses go through to reach
+        the gateway.
     &#34;&#34;&#34;
-    edges = list(self.edges(data=True))
+    edges: list[ExtendedNetworkLink] = list(self.edges(data=True))
     colors = [&#34;#000000&#34; for _ in list(self.edges(data=True))]
-    for l in shortest_path:
+    for l in path:
         for i, e in enumerate(edges):
-            if (l.id == e[2][&#34;data&#34;].id):
+            if (l[2][&#34;data&#34;].id == e[2][&#34;data&#34;].id):
                 colors[i] = &#34;#FF0000&#34;
-    #self.remove_edges_from(edges)
     positions = {}
     labels = {}
     for n in self.nodes:
         positions[n] = [n.position[1], n.position[0]]
         labels[n] = n.name
-    #colors = [&#34;#CC00CC&#34; for edge in list(self.edges)[::2]]
     nx.draw_networkx_nodes(self,
                            pos=positions)
     nx.draw_networkx_labels(self,
@@ -1644,9 +1623,7 @@ NetworkNode of NetworkNodeType AP.</p>
     nx.draw_networkx_edge_labels(
         self,
         pos=positions,
-        edge_labels=edge_labels)
-    plt.show()
-    #self.add_edges_from(edges)</code></pre>
+        edge_labels=edge_labels)</code></pre>
 </details>
 </dd>
 </dl>
@@ -1684,7 +1661,7 @@ NetworkNode of NetworkNodeType AP.</p>
 <li><code><a title="uav-mobility-app.uav_mobility_app.network_envs.entities.Network.Network.network_nodes" href="#uav-mobility-app.uav_mobility_app.network_envs.entities.Network.Network.network_nodes">network_nodes</a></code></li>
 <li><code><a title="uav-mobility-app.uav_mobility_app.network_envs.entities.Network.Network.shortest_path_to_gw" href="#uav-mobility-app.uav_mobility_app.network_envs.entities.Network.Network.shortest_path_to_gw">shortest_path_to_gw</a></code></li>
 <li><code><a title="uav-mobility-app.uav_mobility_app.network_envs.entities.Network.Network.show_network_info" href="#uav-mobility-app.uav_mobility_app.network_envs.entities.Network.Network.show_network_info">show_network_info</a></code></li>
-<li><code><a title="uav-mobility-app.uav_mobility_app.network_envs.entities.Network.Network.show_shortest_path_to_gw" href="#uav-mobility-app.uav_mobility_app.network_envs.entities.Network.Network.show_shortest_path_to_gw">show_shortest_path_to_gw</a></code></li>
+<li><code><a title="uav-mobility-app.uav_mobility_app.network_envs.entities.Network.Network.show_path" href="#uav-mobility-app.uav_mobility_app.network_envs.entities.Network.Network.show_path">show_path</a></code></li>
 <li><code><a title="uav-mobility-app.uav_mobility_app.network_envs.entities.Network.Network.switches" href="#uav-mobility-app.uav_mobility_app.network_envs.entities.Network.Network.switches">switches</a></code></li>
 <li><code><a title="uav-mobility-app.uav_mobility_app.network_envs.entities.Network.Network.uavs" href="#uav-mobility-app.uav_mobility_app.network_envs.entities.Network.Network.uavs">uavs</a></code></li>
 </ul>

@@ -49,9 +49,27 @@ class NetworkEnv(gym.Env):
             spaces.Tuple((self._obs_space for _ in range(n_actions)))
         self.observation_space = flatten_space(self.observation_space)
         self._dev: NetworkDevice = None
-        self._path: list[tuple[NetworkNode,
-                               NetworkNode,
-                               dict[str, NetworkDevice]]] = []
+        self._path: list[ExtendedNetworkLink] = []
+
+    @property
+    def network(self) -> Network:
+        """Returns the Network object.
+
+        Returns:
+            Network: The Network object.
+        """
+        return self._network
+
+    @property
+    def path(self) -> list[ExtendedNetworkLink]:
+        """Returns the list of ExtendedNetworkLinks that lead
+        the current device to the gateway.
+
+        Returns:
+            list[ExtendedNetworkLink]: the list of ExtendedNetworkLinks
+            that lead the current device to the gateway.
+        """
+        return self._path
 
     def reset(self,
               *,
@@ -90,6 +108,9 @@ class NetworkEnv(gym.Env):
         link= list(self._network.out_edges(self._dev, data=True))[0]
         self._path.append(link)
         obs = self._get_obs()
+        print(obs)
+        print()
+        print()
         info = self._get_info()
         return obs, info
 
@@ -114,6 +135,10 @@ class NetworkEnv(gym.Env):
             self._path.append(next_link)
         # Check if we are in a terminal state
             if (dst_node.node_type == NetworkNodeType.GW):
+                # Delete the previous path of the device
+                self._network.free_path_device(
+                    self._dev,
+                    self._network.get_path_device(self._dev))
                 reward = self._get_reward()
                 terminated = True
                 #TODO Allocate resources for the path

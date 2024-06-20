@@ -6,7 +6,6 @@ class FlattenObservationSpace(Wrapper):
 
     def __init__(self, env: Env):
         super().__init__(env)
-        print(self.observation_space)
 
     def reset(self,
               *,

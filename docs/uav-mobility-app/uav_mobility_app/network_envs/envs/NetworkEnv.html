@@ -77,9 +77,27 @@ class NetworkEnv(gym.Env):
             spaces.Tuple((self._obs_space for _ in range(n_actions)))
         self.observation_space = flatten_space(self.observation_space)
         self._dev: NetworkDevice = None
-        self._path: list[tuple[NetworkNode,
-                               NetworkNode,
-                               dict[str, NetworkDevice]]] = []
+        self._path: list[ExtendedNetworkLink] = []
+
+    @property
+    def network(self) -&gt; Network:
+        &#34;&#34;&#34;Returns the Network object.
+
+        Returns:
+            Network: The Network object.
+        &#34;&#34;&#34;
+        return self._network
+
+    @property
+    def path(self) -&gt; list[ExtendedNetworkLink]:
+        &#34;&#34;&#34;Returns the list of ExtendedNetworkLinks that lead
+        the current device to the gateway.
+
+        Returns:
+            list[ExtendedNetworkLink]: the list of ExtendedNetworkLinks
+            that lead the current device to the gateway.
+        &#34;&#34;&#34;
+        return self._path
 
     def reset(self,
               *,
@@ -118,6 +136,9 @@ class NetworkEnv(gym.Env):
         link= list(self._network.out_edges(self._dev, data=True))[0]
         self._path.append(link)
         obs = self._get_obs()
+        print(obs)
+        print()
+        print()
         info = self._get_info()
         return obs, info
 
@@ -142,6 +163,10 @@ class NetworkEnv(gym.Env):
             self._path.append(next_link)
         # Check if we are in a terminal state
             if (dst_node.node_type == NetworkNodeType.GW):
+                # Delete the previous path of the device
+                self._network.free_path_device(
+                    self._dev,
+                    self._network.get_path_device(self._dev))
                 reward = self._get_reward()
                 terminated = True
                 #TODO Allocate resources for the path
@@ -199,7 +224,7 @@ class NetworkEnv(gym.Env):
                                            obs[1],
                                            self._obs_space.high[2] - obs[2]))
         observations: np.ndarray = np.array(observations, dtype=np.float32)
-        return observations[:3][:]
+        return observations[:self.action_space.n][:]
 
     def _get_reward(self):
         &#34;&#34;&#34;Get the reward associated to the actions carried out during
@@ -336,9 +361,27 @@ callable by gym.make(&hellip;).</p>
             spaces.Tuple((self._obs_space for _ in range(n_actions)))
         self.observation_space = flatten_space(self.observation_space)
         self._dev: NetworkDevice = None
-        self._path: list[tuple[NetworkNode,
-                               NetworkNode,
-                               dict[str, NetworkDevice]]] = []
+        self._path: list[ExtendedNetworkLink] = []
+
+    @property
+    def network(self) -&gt; Network:
+        &#34;&#34;&#34;Returns the Network object.
+
+        Returns:
+            Network: The Network object.
+        &#34;&#34;&#34;
+        return self._network
+
+    @property
+    def path(self) -&gt; list[ExtendedNetworkLink]:
+        &#34;&#34;&#34;Returns the list of ExtendedNetworkLinks that lead
+        the current device to the gateway.
+
+        Returns:
+            list[ExtendedNetworkLink]: the list of ExtendedNetworkLinks
+            that lead the current device to the gateway.
+        &#34;&#34;&#34;
+        return self._path
 
     def reset(self,
               *,
@@ -377,6 +420,9 @@ callable by gym.make(&hellip;).</p>
         link= list(self._network.out_edges(self._dev, data=True))[0]
         self._path.append(link)
         obs = self._get_obs()
+        print(obs)
+        print()
+        print()
         info = self._get_info()
         return obs, info
 
@@ -401,6 +447,10 @@ callable by gym.make(&hellip;).</p>
             self._path.append(next_link)
         # Check if we are in a terminal state
             if (dst_node.node_type == NetworkNodeType.GW):
+                # Delete the previous path of the device
+                self._network.free_path_device(
+                    self._dev,
+                    self._network.get_path_device(self._dev))
                 reward = self._get_reward()
                 terminated = True
                 #TODO Allocate resources for the path
@@ -458,7 +508,7 @@ callable by gym.make(&hellip;).</p>
                                            obs[1],
                                            self._obs_space.high[2] - obs[2]))
         observations: np.ndarray = np.array(observations, dtype=np.float32)
-        return observations[:3][:]
+        return observations[:self.action_space.n][:]
 
     def _get_reward(self):
         &#34;&#34;&#34;Get the reward associated to the actions carried out during
@@ -500,6 +550,57 @@ callable by gym.make(&hellip;).</p>
 <li>gymnasium.core.Env</li>
 <li>typing.Generic</li>
 </ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="uav-mobility-app.uav_mobility_app.network_envs.envs.NetworkEnv.NetworkEnv.network"><code class="name">var <span class="ident">network</span> : network_envs.entities.Network.Network</code></dt>
+<dd>
+<div class="desc"><p>Returns the Network object.</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>Network</code></dt>
+<dd>The Network object.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def network(self) -&gt; Network:
+    &#34;&#34;&#34;Returns the Network object.
+
+    Returns:
+        Network: The Network object.
+    &#34;&#34;&#34;
+    return self._network</code></pre>
+</details>
+</dd>
+<dt id="uav-mobility-app.uav_mobility_app.network_envs.envs.NetworkEnv.NetworkEnv.path"><code class="name">var <span class="ident">path</span> : list[tuple[network_envs.entities.NetworkNode.NetworkNode, network_envs.entities.NetworkNode.NetworkNode, dict[str, network_envs.entities.NetworkLink.NetworkLink]]]</code></dt>
+<dd>
+<div class="desc"><p>Returns the list of ExtendedNetworkLinks that lead
+the current device to the gateway.</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>list[ExtendedNetworkLink]</code></dt>
+<dd>the list of ExtendedNetworkLinks</dd>
+</dl>
+<p>that lead the current device to the gateway.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def path(self) -&gt; list[ExtendedNetworkLink]:
+    &#34;&#34;&#34;Returns the list of ExtendedNetworkLinks that lead
+    the current device to the gateway.
+
+    Returns:
+        list[ExtendedNetworkLink]: the list of ExtendedNetworkLinks
+        that lead the current device to the gateway.
+    &#34;&#34;&#34;
+    return self._path</code></pre>
+</details>
+</dd>
+</dl>
 <h3>Methods</h3>
 <dl>
 <dt id="uav-mobility-app.uav_mobility_app.network_envs.envs.NetworkEnv.NetworkEnv.reset"><code class="name flex">
@@ -560,6 +661,9 @@ options yet. Defaults to None.</p>
     link= list(self._network.out_edges(self._dev, data=True))[0]
     self._path.append(link)
     obs = self._get_obs()
+    print(obs)
+    print()
+    print()
     info = self._get_info()
     return obs, info</code></pre>
 </details>
@@ -605,6 +709,10 @@ a new state.</p>
         self._path.append(next_link)
     # Check if we are in a terminal state
         if (dst_node.node_type == NetworkNodeType.GW):
+            # Delete the previous path of the device
+            self._network.free_path_device(
+                self._dev,
+                self._network.get_path_device(self._dev))
             reward = self._get_reward()
             terminated = True
             #TODO Allocate resources for the path
@@ -640,6 +748,8 @@ a new state.</p>
 <li>
 <h4><code><a title="uav-mobility-app.uav_mobility_app.network_envs.envs.NetworkEnv.NetworkEnv" href="#uav-mobility-app.uav_mobility_app.network_envs.envs.NetworkEnv.NetworkEnv">NetworkEnv</a></code></h4>
 <ul class="">
+<li><code><a title="uav-mobility-app.uav_mobility_app.network_envs.envs.NetworkEnv.NetworkEnv.network" href="#uav-mobility-app.uav_mobility_app.network_envs.envs.NetworkEnv.NetworkEnv.network">network</a></code></li>
+<li><code><a title="uav-mobility-app.uav_mobility_app.network_envs.envs.NetworkEnv.NetworkEnv.path" href="#uav-mobility-app.uav_mobility_app.network_envs.envs.NetworkEnv.NetworkEnv.path">path</a></code></li>
 <li><code><a title="uav-mobility-app.uav_mobility_app.network_envs.envs.NetworkEnv.NetworkEnv.reset" href="#uav-mobility-app.uav_mobility_app.network_envs.envs.NetworkEnv.NetworkEnv.reset">reset</a></code></li>
 <li><code><a title="uav-mobility-app.uav_mobility_app.network_envs.envs.NetworkEnv.NetworkEnv.step" href="#uav-mobility-app.uav_mobility_app.network_envs.envs.NetworkEnv.NetworkEnv.step">step</a></code></li>
 </ul>
